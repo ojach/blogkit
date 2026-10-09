@@ -1,0 +1,10 @@
+{
+  "name": "ojapp-blog-kit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A lightweight static blog engine for your own domain.",
+  "scripts": {"build": "node scripts/build.js"},
+  "engines": {"node": ">=20"},
+  "dependencies": {"marked": "^17.0.5"}
+}

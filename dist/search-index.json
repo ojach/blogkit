@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Markdownから、自分のブログを公開する",
+    "description": "OJapp Blog Kitのサンプル記事です。Markdownを正本にして、自分のドメインで記事を公開する流れを紹介します。",
+    "excerpt": "記事はMarkdownで書き、ビルドと公開に必要な周辺作業はBlog Kitに任せます。",
+    "url": "/markdown-blog/",
+    "published": "2026-10-09",
+    "category": "Blog Kit"
+  },
+  {
+    "title": "小さな仕組みで、記事に集中する",
+    "description": "個人ブログに必要な公開基盤を小さく保ち、記事を書く時間を増やす設計を考えます。",
+    "excerpt": "機能を増やすより、公開のたびに発生する手作業を減らすことから始めます。",
+    "url": "/focus-on-writing/",
+    "published": "2026-10-08",
+    "category": "設計"
+  }
+]
