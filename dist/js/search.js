@@ -2,7 +2,7 @@ const input=document.querySelector('[data-search]');
 const list=document.querySelector('[data-results]');
 if(input&&list){
   let articles=[];
-  fetch('/search-index.json').then(r=>{if(!r.ok)throw new Error('Search index unavailable');return r.json()}).then(data=>articles=data).catch(()=>{});
+  fetch(input.dataset.indexUrl || 'search-index.json').then(r=>{if(!r.ok)throw new Error('Search index unavailable');return r.json()}).then(data=>articles=data).catch(()=>{});
   const addText=(parent,tag,text,className)=>{const el=document.createElement(tag);el.textContent=text;if(className)el.className=className;parent.append(el);return el};
   const showOriginal=()=>list.querySelectorAll('[data-card]').forEach(el=>el.hidden=false);
   const render=found=>{
