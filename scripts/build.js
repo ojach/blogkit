@@ -39,6 +39,7 @@ await fs.rm(out, { recursive: true, force: true });
 await fs.mkdir(out, { recursive: true });
 
 const [site, metadata] = await Promise.all([readJson('site.json'), readJson('articles.json')]);
+const shareScript = await fs.readFile(path.join(root, 'public/js/share.js'), 'utf8');
 const siteUrl = new URL(site.url);
 const basePath = siteUrl.pathname.replace(/\/$/, '');
 const absoluteUrl = (pathname) => new URL(withBase(basePath, pathname), siteUrl.origin).href;
@@ -111,7 +112,9 @@ for (const article of articles) {
     ? `<section class="recommendations" aria-labelledby="recommendations-title"><div class="section-label">おすすめ記事</div><h2 id="recommendations-title">ほかの記事も読む</h2><ul class="recommendation-list">${recommendations.map((candidate) => `<li><div class="article-meta">${candidate.published ? `<time datetime="${esc(candidate.published)}">${esc(candidate.published)}</time>` : ''}${candidate.category ? ` · ${esc(candidate.category)}` : ''}</div><h3><a href="${esc(withBase(basePath, `/${candidate.permalink}/`))}">${esc(candidate.title)}</a></h3><p>${esc(candidate.excerpt)}</p></li>`).join('')}</ul></section>`
     : '';
   const jsonld = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: article.title, description: article.description, datePublished: article.published || undefined, author: { '@type': 'Person', name: site.author }, mainEntityOfPage: canonical, url: canonical, publisher: { '@type': 'Organization', name: site.title } };
-  const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${tocHtml}<article class="prose">${html}</article>${nextSection}${authorSection}${recommendationSection}<p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main><script src="${esc(withBase(basePath, '/js/share.js'))}" defer></script>`;
+  // Inline the small share handler so it still works when a static host's
+  // fallback/rewrite rules return HTML for /js/share.js instead of the asset.
+  const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${tocHtml}<article class="prose">${html}</article>${nextSection}${authorSection}${recommendationSection}<p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main><script>${shareScript}</script>`;
   const extra = `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>`;
   const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra });
   const destination = path.join(out, article.permalink, 'index.html');
