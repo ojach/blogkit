@@ -15,7 +15,7 @@ Markdownで記事を書き、GitHubへのPushからCloudflare Pagesで静的公�
 npm install
 ```
 
-`site.json` は試験公開先 `https://blogkit.ojapp.app` に設定済みです。自分のブログに使う場合は、公開URL・サイト名・説明・著者名を変更します。記事は `content/` にMarkdownで追加します。
+`site.json` は公開URL・サイト名・説明・著者名を設定するファイルです。自分のブログに使う場合は、公開URLなどを変更します。記事は `content/` にMarkdownで追加します。
 
 ```sh
 npm run build
@@ -66,7 +66,27 @@ v1では関連記事を自動表示しません。将来実装する場合は、
 4. 最初のデプロイ完了後、Pagesプロジェクトの **Custom domains → Set up a domain** から `blogkit.ojapp.app` を追加します。
 5. Cloudflare DNSの案内に従ってドメインを有効化します。記事への変更をGitHubへPushすると、Pagesが再ビルドして公開します。
 
-サイトマップ・canonicalなどのURLは `site.json` をもとに生成します。公開先を変える場合は、Push前に `site.json` の `url` を変更してください。記事データと表示処理は分離されており、生成後の `dist/` は任意の静的ホスティングでも配信できます。
+サイトマップ・canonicalなどのURLは `site.json` をもとに生成します。公開先を変える場合は、Push前に `site.json` の `url` を変更してください。URLのパス部分もビルド時に各ページ・CSS・検索データのリンクへ反映されます。
+
+## GitHub Pagesで公開
+
+独自ドメインがなくてもGitHub Pagesで公開できます。`ojach.github.io/my-blog` のようなプロジェクトサイトでは、`site.json` の `url` を実際の公開URLにします。
+
+```json
+{
+  "title": "My Blog",
+  "description": "Markdownで書く個人ブログ。",
+  "url": "https://ojach.github.io/my-blog",
+  "author": "Your Name",
+  "language": "ja-JP"
+}
+```
+
+GitHub Pages用のワークフローを `.github/workflows/pages.yml` に同梱しています。リポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** に変更すると、`main` へのPushごとにActionsが `npm install` → `npm run build` を実行し、`dist/` を公開します。最初の実行状況と公開URLは **Actions** タブで確認できます。
+
+ユーザーサイト（`ojach.github.io`）として公開する場合も同じワークフローを使えます。その場合の `site.json` の `url` は `https://ojach.github.io` です。
+
+生成後の `dist/` は任意の静的ホスティングでも配信できます。記事データと表示処理は分離されているため、ホスティング先に応じて記事データを書き換える必要はありません。
 
 ## 注意
 

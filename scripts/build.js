@@ -2,26 +2,112 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');const out=path.join(root,'dist');
-const readJson=async p=>JSON.parse(await fs.readFile(path.join(root,p),'utf8'));
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const slug=s=>s.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9ぁ-んァ-ヶ一-龠ー]+/g,'-').replace(/^-|-$/g,'')||'section';
-const codeEscape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function colorize(code,lang){let safe=codeEscape(code);if(!lang)return safe;const rules=lang==='json'?[/(&quot;.*?&quot;)(?=\s*:)/g,/(:\s*)(&quot;.*?&quot;)/g,/\b(true|false|null)\b/g,/\b\d+\b/g]:lang==='css'?[/([.#]?[\w-]+)(\s*\{)/g,/([\w-]+)(\s*:)/g,/#[0-9a-fA-F]{3,8}\b/g]:[/\b(const|let|var|function|return|if|else|new|import|from|export|async|await|class)\b/g,/(&quot;.*?&quot;|&#39;.*?&#39;|`.*?`)/g,/\b(true|false|null|undefined)\b/g,/\b\d+\b/g];for(const re of rules){safe=safe.replace(re,m=>`<span class="tok">${m}</span>`)}safe=safe.replace(/(\/\/[^\n]*|# [^\n]*)/g,'<span class="tok-comment">$1</span>');return safe}
-const renderer=new marked.Renderer();renderer.code=({text,lang})=>`<pre><code class="language-${esc(lang||'text')}">${colorize(text,lang||'')}</code></pre>\n`;
-function shell({title,description,url,site,body,extra='',lang='ja'}){return `<!doctype html><html lang="${esc(lang)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="${esc(url)}"><meta property="og:type" content="${extra?'article':'website'}"><meta property="og:site_name" content="${esc(site.title)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(url)}"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(description)}"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/highlight.css"><link rel="alternate" type="application/rss+xml" title="${esc(site.title)} RSS" href="/rss.xml">${extra}</head><body><header class="site-header"><div class="header-inner"><a class="brand" href="/">${esc(site.title)}</a><nav class="nav"><a href="/">記事一覧</a><a href="/rss.xml">RSS</a></nav></div></header>${body}<footer class="footer">${esc(site.title)} · Built for the AI Writing Era.</footer></body></html>`}
-await fs.rm(out,{recursive:true,force:true});await fs.mkdir(out,{recursive:true});
-const [site,metadata]=await Promise.all([readJson('site.json'),readJson('articles.json')]);
-const files=(await fs.readdir(path.join(root,'content'))).filter(f=>f.endsWith('.md'));
-const articles=[];
-for(const file of files){const key=path.basename(file,'.md');const raw=await fs.readFile(path.join(root,'content',file),'utf8');const tokens=marked.lexer(raw);const firstHeading=tokens.find(t=>t.type==='heading'&&t.depth===1);const headingText=t=>t.tokens?.map(x=>x.text||x.raw||'').join('')||t.text||'';const meta=metadata[key]||{};const title=meta.title|| (firstHeading&&headingText(firstHeading)) || key.replace(/[-_]/g,' ');const desc=meta.meta_description||meta.excerpt||raw.replace(/^#+ .*$/gm,'').replace(/[`*_>#\[\]()-]/g,' ').replace(/\s+/g,' ').trim().slice(0,160)||title;const permalink=(meta.permalink||key).replace(/^\/+|\/+$/g,'');articles.push({key,file,title,description:desc,excerpt:meta.excerpt||desc,permalink,published:meta.published||'',category:meta.category||'',raw,tokens,firstHeading})}
-articles.sort((a,b)=>(b.published||'').localeCompare(a.published||'')||a.title.localeCompare(b.title));
-const searchIndex=articles.map(a=>({title:a.title,description:a.description,excerpt:a.excerpt,url:`/${a.permalink}/`,published:a.published,category:a.category}));
-const cards=articles.map(a=>`<li class="article-card" data-card><div class="article-meta">${a.published?`<time datetime="${esc(a.published)}">${esc(a.published)}</time>`:'<span>日付未設定</span>'}${a.category?` · ${esc(a.category)}`:''}</div><h2><a href="/${esc(a.permalink)}/">${esc(a.title)}</a></h2><p>${esc(a.excerpt)}</p></li>`).join('');
-const home=`<main class="page"><div class="home-grid"><section><div class="intro"><div class="eyebrow">PERSONAL BLOG ENGINE</div><h1>記事を書くことに、集中する。</h1><p class="muted">Markdownで書いて、自分のドメインに公開。</p></div><label class="eyebrow" for="article-search">記事を検索</label><input id="article-search" class="search" type="search" placeholder="タイトル・説明文から検索" data-search><ul class="article-list" data-results>${cards||'<li class="empty">記事はまだありません。</li>'}</ul></section><aside class="side-note"><strong>Write freely.<br>Own what you build.</strong><p class="muted">普通のMarkdownファイルから、自分のブログを育てます。</p></aside></div></main><script src="/js/search.js" defer></script>`;
-await fs.writeFile(path.join(out,'index.html'),shell({title:site.title,description:site.description,url:site.url.replace(/\/$/, '')+'/',site,body:home}));
-const sitemap=[];const rss=[];
-for(const a of articles){const toc=[];const usedIds=new Map();const renderer=new marked.Renderer();renderer.heading=({tokens,depth})=>{const rendered=renderer.parser.parseInline(tokens);const plain=rendered.replace(/<[^>]*>/g,'');const base=slug(plain);const count=usedIds.get(base)||0;usedIds.set(base,count+1);const id=count?`${base}-${count+1}`:base;if(depth>=2){toc.push({id,text:plain,level:depth})}return `<h${depth} id="${id}">${rendered}</h${depth}>\n`};const contentTokens=a.firstHeading?a.tokens.slice(a.tokens.indexOf(a.firstHeading)+1):a.tokens;const html=marked.parser(contentTokens,{renderer});const tocHtml=toc.length?`<details class="toc" open><summary>目次</summary><ul>${toc.map(t=>`<li class="${t.level===3?'toc-h3':''}"><a href="#${esc(t.id)}">${esc(t.text)}</a></li>`).join('')}</ul></details>`:'';const canonical=site.url.replace(/\/$/,'')+'/'+a.permalink+'/';const jsonld={'@context':'https://schema.org','@type':'BlogPosting','headline':a.title,'description':a.description,'datePublished':a.published||undefined,'author':{'@type':'Person','name':site.author},'mainEntityOfPage':canonical,'url':canonical,'publisher':{'@type':'Organization','name':site.title}};const articleBody=`<main class="article"><header class="article-head"><div class="article-meta">${a.published?`<time datetime="${esc(a.published)}">${esc(a.published)}</time>`:''}${a.category?` · ${esc(a.category)}`:''}</div><h1>${esc(a.title)}</h1><p class="article-description">${esc(a.description)}</p></header>${tocHtml}<article class="prose">${html}</article><p class="muted"><a href="/">← 記事一覧へ戻る</a></p></main>`;const extra=`<script type="application/ld+json">${JSON.stringify(jsonld)}</script>`;const htmlPage=shell({title:a.title+' | '+site.title,description:a.description,url:canonical,site,body:articleBody,extra});const dest=path.join(out,a.permalink,'index.html');await fs.mkdir(path.dirname(dest),{recursive:true});await fs.writeFile(dest,htmlPage);sitemap.push(`<url><loc>${esc(canonical)}</loc>${a.published?`<lastmod>${esc(a.published)}</lastmod>`:''}</url>`);rss.push(`<item><title>${esc(a.title)}</title><link>${esc(canonical)}</link><guid>${esc(canonical)}</guid>${a.published?`<pubDate>${new Date(a.published+'T00:00:00Z').toUTCString()}</pubDate>`:''}<description>${esc(a.description)}</description></item>`)}
-await fs.writeFile(path.join(out,'search-index.json'),JSON.stringify(searchIndex,null,2));await fs.writeFile(path.join(out,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${esc(site.url.replace(/\/$/,'')+'/')}</loc></url>${sitemap.join('')}</urlset>`);await fs.writeFile(path.join(out,'rss.xml'),`<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${esc(site.title)}</title><link>${esc(site.url)}</link><description>${esc(site.description)}</description><language>${esc(site.language||'ja-JP')}</language>${rss.join('')}</channel></rss>`);await fs.writeFile(path.join(out,'robots.txt'),`User-agent: *\nAllow: /\nSitemap: ${site.url.replace(/\/$/,'')}/sitemap.xml\n`);
-await fs.cp(path.join(root,'public'),out,{recursive:true});
-console.log(`Built ${articles.length} article(s) into dist/`)
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const out = path.join(root, 'dist');
+const readJson = async (file) => JSON.parse(await fs.readFile(path.join(root, file), 'utf8'));
+const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+const slug = (value) => value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9ぁ-んァ-ヶ一-龠ー]+/g, '-').replace(/^-|-$/g, '') || 'section';
+const codeEscape = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+
+function colorize(code, lang) {
+  let safe = codeEscape(code);
+  if (!lang) return safe;
+  const rules = lang === 'json'
+    ? [/(&quot;.*?&quot;)(?=\s*:)/g, /(:\s*)(&quot;.*?&quot;)/g, /\b(true|false|null)\b/g, /\b\d+\b/g]
+    : lang === 'css'
+      ? [/([.#]?[\w-]+)(\s*\{)/g, /([\w-]+)(\s*:)/g, /#[0-9a-fA-F]{3,8}\b/g]
+      : [/\b(const|let|var|function|return|if|else|new|import|from|export|async|await|class)\b/g, /(&quot;.*?&quot;|&#39;.*?&#39;|`.*?`)/g, /\b(true|false|null|undefined)\b/g, /\b\d+\b/g];
+  for (const rule of rules) safe = safe.replace(rule, (match) => `<span class="tok">${match}</span>`);
+  return safe.replace(/(\/\/[^\n]*|# [^\n]*)/g, '<span class="tok-comment">$1</span>');
+}
+
+function withBase(basePath, pathname) {
+  const cleanPath = `/${String(pathname).replace(/^\/+/, '')}`;
+  return `${basePath}${cleanPath}` || '/';
+}
+
+function shell({ title, description, canonical, site, basePath, body, extra = '', lang = 'ja' }) {
+  const homeUrl = withBase(basePath, '/');
+  const cssUrl = withBase(basePath, '/css/style.css');
+  const highlightUrl = withBase(basePath, '/css/highlight.css');
+  const rssUrl = withBase(basePath, '/rss.xml');
+  return `<!doctype html><html lang="${esc(lang)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="${esc(canonical)}"><meta property="og:type" content="${extra ? 'article' : 'website'}"><meta property="og:site_name" content="${esc(site.title)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(canonical)}"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(description)}"><link rel="stylesheet" href="${esc(cssUrl)}"><link rel="stylesheet" href="${esc(highlightUrl)}"><link rel="alternate" type="application/rss+xml" title="${esc(site.title)} RSS" href="${esc(rssUrl)}">${extra}</head><body><header class="site-header"><div class="header-inner"><a class="brand" href="${esc(homeUrl)}">${esc(site.title)}</a><nav class="nav"><a href="${esc(homeUrl)}">記事一覧</a><a href="${esc(rssUrl)}">RSS</a></nav></div></header>${body}<footer class="footer">${esc(site.title)} · Built for the AI Writing Era.</footer></body></html>`;
+}
+
+await fs.rm(out, { recursive: true, force: true });
+await fs.mkdir(out, { recursive: true });
+
+const [site, metadata] = await Promise.all([readJson('site.json'), readJson('articles.json')]);
+const siteUrl = new URL(site.url);
+const basePath = siteUrl.pathname.replace(/\/$/, '');
+const absoluteUrl = (pathname) => new URL(withBase(basePath, pathname), siteUrl.origin).href;
+const renderer = new marked.Renderer();
+renderer.code = ({ text, lang }) => `<pre><code class="language-${esc(lang || 'text')}">${colorize(text, lang || '')}</code></pre>\n`;
+
+const files = (await fs.readdir(path.join(root, 'content'))).filter((file) => file.endsWith('.md'));
+const articles = [];
+for (const file of files) {
+  const key = path.basename(file, '.md');
+  const raw = await fs.readFile(path.join(root, 'content', file), 'utf8');
+  const tokens = marked.lexer(raw);
+  const firstHeading = tokens.find((token) => token.type === 'heading' && token.depth === 1);
+  const headingText = (token) => token.tokens?.map((part) => part.text || part.raw || '').join('') || token.text || '';
+  const meta = metadata[key] || {};
+  const title = meta.title || (firstHeading && headingText(firstHeading)) || key.replace(/[-_]/g, ' ');
+  const description = meta.meta_description || meta.excerpt || raw.replace(/^#+ .*$/gm, '').replace(/[`*_>#\[\]()-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160) || title;
+  const permalink = (meta.permalink || key).replace(/^\/+|\/+$/g, '');
+  articles.push({ key, title, description, excerpt: meta.excerpt || description, permalink, published: meta.published || '', category: meta.category || '', tokens, firstHeading });
+}
+articles.sort((a, b) => (b.published || '').localeCompare(a.published || '') || a.title.localeCompare(b.title));
+
+const searchIndex = articles.map((article) => ({
+  title: article.title,
+  description: article.description,
+  excerpt: article.excerpt,
+  url: absoluteUrl(`/${article.permalink}/`),
+  published: article.published,
+  category: article.category,
+}));
+const cards = articles.map((article) => `<li class="article-card" data-card><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : '<span>日付未設定</span>'}${article.category ? ` · ${esc(article.category)}` : ''}</div><h2><a href="${esc(withBase(basePath, `/${article.permalink}/`))}">${esc(article.title)}</a></h2><p>${esc(article.excerpt)}</p></li>`).join('');
+const searchIndexUrl = withBase(basePath, '/search-index.json');
+const home = `<main class="page"><div class="home-grid"><section><div class="intro"><div class="eyebrow">PERSONAL BLOG ENGINE</div><h1>記事を書くことに、集中する。</h1><p class="muted">Markdownで書いて、自分のドメインに公開。</p></div><label class="eyebrow" for="article-search">記事を検索</label><input id="article-search" class="search" type="search" placeholder="タイトル・説明文から検索" data-search data-index-url="${esc(searchIndexUrl)}"><ul class="article-list" data-results>${cards || '<li class="empty">記事はまだありません。</li>'}</ul></section><aside class="side-note"><strong>Write freely.<br>Own what you build.</strong><p class="muted">普通のMarkdownファイルから、自分のブログを育てます。</p></aside></div></main><script src="${esc(withBase(basePath, '/js/search.js'))}" defer></script>`;
+
+await fs.writeFile(path.join(out, 'index.html'), shell({ title: site.title, description: site.description, canonical: absoluteUrl('/'), site, basePath, body: home }));
+const sitemap = [];
+const rss = [];
+for (const article of articles) {
+  const toc = [];
+  const usedIds = new Map();
+  const articleRenderer = new marked.Renderer();
+  articleRenderer.heading = ({ tokens, depth }) => {
+    const rendered = articleRenderer.parser.parseInline(tokens);
+    const plain = rendered.replace(/<[^>]*>/g, '');
+    const base = slug(plain);
+    const count = usedIds.get(base) || 0;
+    usedIds.set(base, count + 1);
+    const id = count ? `${base}-${count + 1}` : base;
+    if (depth >= 2) toc.push({ id, text: plain, level: depth });
+    return `<h${depth} id="${id}">${rendered}</h${depth}>\n`;
+  };
+  const contentTokens = article.firstHeading ? article.tokens.slice(article.tokens.indexOf(article.firstHeading) + 1) : article.tokens;
+  const html = marked.parser(contentTokens, { renderer: articleRenderer });
+  const tocHtml = toc.length ? `<details class="toc" open><summary>目次</summary><ul>${toc.map((item) => `<li class="${item.level === 3 ? 'toc-h3' : ''}"><a href="#${esc(item.id)}">${esc(item.text)}</a></li>`).join('')}</ul></details>` : '';
+  const canonical = absoluteUrl(`/${article.permalink}/`);
+  const jsonld = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: article.title, description: article.description, datePublished: article.published || undefined, author: { '@type': 'Person', name: site.author }, mainEntityOfPage: canonical, url: canonical, publisher: { '@type': 'Organization', name: site.title } };
+  const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${tocHtml}<article class="prose">${html}</article><p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main>`;
+  const extra = `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>`;
+  const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra });
+  const destination = path.join(out, article.permalink, 'index.html');
+  await fs.mkdir(path.dirname(destination), { recursive: true });
+  await fs.writeFile(destination, htmlPage);
+  sitemap.push(`<url><loc>${esc(canonical)}</loc>${article.published ? `<lastmod>${esc(article.published)}</lastmod>` : ''}</url>`);
+  rss.push(`<item><title>${esc(article.title)}</title><link>${esc(canonical)}</link><guid>${esc(canonical)}</guid>${article.published ? `<pubDate>${new Date(`${article.published}T00:00:00Z`).toUTCString()}</pubDate>` : ''}<description>${esc(article.description)}</description></item>`);
+}
+
+await fs.writeFile(path.join(out, 'search-index.json'), JSON.stringify(searchIndex, null, 2));
+await fs.writeFile(path.join(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${esc(absoluteUrl('/'))}</loc></url>${sitemap.join('')}</urlset>`);
+await fs.writeFile(path.join(out, 'rss.xml'), `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${esc(site.title)}</title><link>${esc(absoluteUrl('/'))}</link><description>${esc(site.description)}</description><language>${esc(site.language || 'ja-JP')}</language>${rss.join('')}</channel></rss>`);
+await fs.writeFile(path.join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${absoluteUrl('/sitemap.xml')}\n`);
+await fs.cp(path.join(root, 'public'), out, { recursive: true });
+console.log(`Built ${articles.length} article(s) into dist/ (base path: ${basePath || '/'})`);
