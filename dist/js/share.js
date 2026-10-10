@@ -29,7 +29,13 @@ document.querySelectorAll('[data-share]').forEach((button) => {
 
     if (status) status.textContent = '';
 
-    if (navigator.share) {
+    // Prefer the native share sheet on phones. On desktop, Web Share may be
+    // present but have no available targets, which can end as a silent abort.
+    const isMobile = navigator.userAgentData?.mobile
+      || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    if (isMobile && navigator.share) {
       try {
         await navigator.share(data);
         return;
