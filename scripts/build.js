@@ -57,7 +57,7 @@ for (const file of files) {
   const title = meta.title || (firstHeading && headingText(firstHeading)) || key.replace(/[-_]/g, ' ');
   const description = meta.meta_description || meta.excerpt || raw.replace(/^#+ .*$/gm, '').replace(/[`*_>#\[\]()-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160) || title;
   const permalink = (meta.permalink || key).replace(/^\/+|\/+$/g, '');
-  articles.push({ key, title, description, excerpt: meta.excerpt || description, permalink, published: meta.published || '', category: meta.category || '', tokens, firstHeading });
+  articles.push({ key, title, description, excerpt: meta.excerpt || description, permalink, published: meta.published || '', category: meta.category || '', nextArticleKey: meta.next_article || '', tokens, firstHeading });
 }
 articles.sort((a, b) => (b.published || '').localeCompare(a.published || '') || a.title.localeCompare(b.title));
 
@@ -94,8 +94,24 @@ for (const article of articles) {
   const html = marked.parser(contentTokens, { renderer: articleRenderer });
   const tocHtml = toc.length ? `<details class="toc" open><summary>目次</summary><ul>${toc.map((item) => `<li class="${item.level === 3 ? 'toc-h3' : ''}"><a href="#${esc(item.id)}">${esc(item.text)}</a></li>`).join('')}</ul></details>` : '';
   const canonical = absoluteUrl(`/${article.permalink}/`);
+  const articleIndex = articles.indexOf(article);
+  const explicitNext = article.nextArticleKey
+    ? articles.find((candidate) => candidate !== article && (candidate.key === article.nextArticleKey || candidate.permalink === article.nextArticleKey))
+    : null;
+  const fallbackNext = articles[articleIndex + 1] || articles.find((candidate) => candidate !== article);
+  const nextArticle = explicitNext || fallbackNext;
+  const recommendations = articles.filter((candidate) => candidate !== article && candidate !== nextArticle).slice(0, 3);
+  const nextSection = nextArticle
+    ? `<section class="next-read" aria-labelledby="next-read-title"><div class="section-label">次に読む</div><h2 id="next-read-title"><a href="${esc(withBase(basePath, `/${nextArticle.permalink}/`))}">${esc(nextArticle.title)}</a></h2><p>${esc(nextArticle.excerpt)}</p></section>`
+    : '';
+  const authorDescription = site.author_description || '';
+  const authorUrl = site.author_url || '';
+  const authorSection = `<section class="author-card" aria-label="作者情報"><div class="author-copy"><div class="section-label">この記事を書いた人</div><strong>${esc(site.author)}</strong>${authorDescription ? `<p>${esc(authorDescription)}</p>` : ''}${authorUrl ? `<a class="author-link" href="${esc(authorUrl)}" rel="author">プロフィールを見る</a>` : ''}</div><div class="share-control"><button type="button" data-share data-share-title="${esc(article.title)}" data-share-url="${esc(canonical)}">記事を共有</button><span data-share-status role="status" aria-live="polite"></span></div></section>`;
+  const recommendationSection = recommendations.length
+    ? `<section class="recommendations" aria-labelledby="recommendations-title"><div class="section-label">おすすめ記事</div><h2 id="recommendations-title">ほかの記事も読む</h2><ul class="recommendation-list">${recommendations.map((candidate) => `<li><div class="article-meta">${candidate.published ? `<time datetime="${esc(candidate.published)}">${esc(candidate.published)}</time>` : ''}${candidate.category ? ` · ${esc(candidate.category)}` : ''}</div><h3><a href="${esc(withBase(basePath, `/${candidate.permalink}/`))}">${esc(candidate.title)}</a></h3><p>${esc(candidate.excerpt)}</p></li>`).join('')}</ul></section>`
+    : '';
   const jsonld = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: article.title, description: article.description, datePublished: article.published || undefined, author: { '@type': 'Person', name: site.author }, mainEntityOfPage: canonical, url: canonical, publisher: { '@type': 'Organization', name: site.title } };
-  const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${tocHtml}<article class="prose">${html}</article><p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main>`;
+  const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${tocHtml}<article class="prose">${html}</article>${nextSection}${authorSection}${recommendationSection}<p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main><script src="${esc(withBase(basePath, '/js/share.js'))}" defer></script>`;
   const extra = `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>`;
   const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra });
   const destination = path.join(out, article.permalink, 'index.html');

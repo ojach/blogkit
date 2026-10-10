@@ -5,7 +5,8 @@
     "excerpt": "記事はMarkdownで書き、ビルドと公開に必要な周辺作業はBlog Kitに任せます。",
     "permalink": "markdown-blog",
     "category": "Blog Kit",
-    "published": "2026-10-09"
+    "published": "2026-10-09",
+    "next_article": "focus-on-writing"
   },
   "second-article": {
     "title": "小さな仕組みで、記事に集中する",
