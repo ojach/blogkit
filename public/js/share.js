@@ -50,7 +50,7 @@ document.querySelectorAll('[data-share]').forEach((button) => {
       await copyText(data.url);
       if (status) status.textContent = 'URLをコピーしました';
     } catch {
-      if (status) status.textContent = 'URLをコピーできませんでした。アドレスバーからコピーしてください';
+      if (status) status.textContent = 'URLをコピーできませんでした。アドレスバーからコピーしてください。';
     }
   });
 });
