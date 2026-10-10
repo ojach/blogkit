@@ -1,56 +1,72 @@
 async function copyText(text) {
   if (navigator.clipboard && window.isSecureContext) {
-    await navigator.clipboard.writeText(text);
-    return;
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      // Clipboard APIが使えなければ、予備の方法を試す
+    }
   }
 
-  // Clipboard API is unavailable in some browsers or non-secure contexts.
   const field = document.createElement('textarea');
   field.value = text;
   field.setAttribute('readonly', '');
   field.style.position = 'fixed';
-  field.style.opacity = '0';
+  field.style.left = '-9999px';
   document.body.appendChild(field);
+  field.focus();
   field.select();
 
   const copied = document.execCommand('copy');
   field.remove();
 
-  if (!copied) throw new Error('Clipboard copy failed');
+  if (!copied) throw new Error('コピーに失敗しました');
 }
 
-document.querySelectorAll('[data-share]').forEach((button) => {
-  button.addEventListener('click', async () => {
-    const status = button.parentElement.querySelector('[data-share-status]');
-    const data = {
-      title: button.dataset.shareTitle,
-      url: button.dataset.shareUrl,
-    };
+function isMobileDevice() {
+  return navigator.userAgentData?.mobile === true
+    || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
 
-    if (status) status.textContent = '';
+document.addEventListener('click', async (event) => {
+  const button = event.target.closest('[data-share]');
+  if (!button) return;
 
-    // Prefer the native share sheet on phones. On desktop, Web Share may be
-    // present but have no available targets, which can end as a silent abort.
-    const isMobile = navigator.userAgentData?.mobile
-      || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  event.preventDefault();
 
-    if (isMobile && navigator.share) {
-      try {
-        await navigator.share(data);
+  const status = button
+    .closest('.share-control')
+    ?.querySelector('[data-share-status]');
+
+  const data = {
+    title: button.dataset.shareTitle || document.title,
+    url: button.dataset.shareUrl || window.location.href,
+  };
+
+  if (status) status.textContent = '共有しています…';
+
+  if (isMobileDevice() && navigator.share) {
+    try {
+      await navigator.share(data);
+      if (status) status.textContent = '共有しました';
+      return;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        if (status) status.textContent = '共有をキャンセルしました';
         return;
-      } catch (error) {
-        // A dismissed native share sheet is intentional; other failures fall
-        // through to copying the article URL instead.
-        if (error.name === 'AbortError') return;
       }
     }
+  }
 
-    try {
-      await copyText(data.url);
-      if (status) status.textContent = 'URLをコピーしました';
-    } catch {
-      if (status) status.textContent = 'URLをコピーできませんでした。アドレスバーからコピーしてください。';
+  try {
+    await copyText(data.url);
+    if (status) status.textContent = 'URLをコピーしました';
+  } catch (error) {
+    console.error('記事の共有に失敗しました:', error);
+    if (status) {
+      status.textContent =
+        'コピーできませんでした。記事URLをアドレスバーからコピーしてください。';
     }
-  });
+  }
 });
