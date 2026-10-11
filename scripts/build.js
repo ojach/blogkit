@@ -27,12 +27,25 @@ function withBase(basePath, pathname) {
   return `${basePath}${cleanPath}` || '/';
 }
 
-function shell({ title, description, canonical, site, basePath, body, extra = '', lang = 'ja' }) {
+function imageUrl(basePath, value) {
+  const image = String(value ?? '').trim();
+  if (!image) return '';
+  if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(image)) return image;
+  const imagePath = image.startsWith('/')
+    ? image
+    : `/images/${image.replace(/^images\//, '')}`;
+  return withBase(basePath, imagePath);
+}
+
+function shell({ title, description, canonical, site, basePath, body, extra = '', ogImage = '', lang = 'ja' }) {
   const homeUrl = withBase(basePath, '/');
   const cssUrl = withBase(basePath, '/css/style.css');
   const highlightUrl = withBase(basePath, '/css/highlight.css');
   const rssUrl = withBase(basePath, '/rss.xml');
-  return `<!doctype html><html lang="${esc(lang)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="${esc(canonical)}"><meta property="og:type" content="${extra ? 'article' : 'website'}"><meta property="og:site_name" content="${esc(site.title)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(canonical)}"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(description)}"><link rel="stylesheet" href="${esc(cssUrl)}"><link rel="stylesheet" href="${esc(highlightUrl)}"><link rel="alternate" type="application/rss+xml" title="${esc(site.title)} RSS" href="${esc(rssUrl)}">${extra}</head><body><header class="site-header"><div class="header-inner"><a class="brand" href="${esc(homeUrl)}">${esc(site.title)}</a><nav class="nav"><a href="${esc(homeUrl)}">記事一覧</a><a href="${esc(rssUrl)}">RSS</a></nav></div></header>${body}<footer class="footer">${esc(site.title)} · Built for the AI Writing Era.</footer></body></html>`;
+  const ogImageTags = ogImage
+    ? `<meta property="og:image" content="${esc(ogImage)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${esc(ogImage)}">`
+    : '<meta name="twitter:card" content="summary">';
+  return `<!doctype html><html lang="${esc(lang)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="${esc(canonical)}"><meta property="og:type" content="${extra ? 'article' : 'website'}"><meta property="og:site_name" content="${esc(site.title)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(canonical)}">${ogImageTags}<meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(description)}"><link rel="stylesheet" href="${esc(cssUrl)}"><link rel="stylesheet" href="${esc(highlightUrl)}"><link rel="alternate" type="application/rss+xml" title="${esc(site.title)} RSS" href="${esc(rssUrl)}">${extra}</head><body><header class="site-header"><div class="header-inner"><a class="brand" href="${esc(homeUrl)}">${esc(site.title)}</a><nav class="nav"><a href="${esc(homeUrl)}">記事一覧</a><a href="${esc(rssUrl)}">RSS</a></nav></div></header>${body}<footer class="footer">${esc(site.title)} · Built for the AI Writing Era.</footer></body></html>`;
 }
 
 await fs.rm(out, { recursive: true, force: true });
@@ -45,6 +58,7 @@ const basePath = siteUrl.pathname.replace(/\/$/, '');
 const absoluteUrl = (pathname) => new URL(withBase(basePath, pathname), siteUrl.origin).href;
 const renderer = new marked.Renderer();
 renderer.code = ({ text, lang }) => `<pre><code class="language-${esc(lang || 'text')}">${colorize(text, lang || '')}</code></pre>\n`;
+renderer.image = ({ href, title, text }) => `<img src="${esc(imageUrl(basePath, href))}" alt="${esc(text)}"${title ? ` title="${esc(title)}"` : ''} loading="lazy">`;
 
 const files = (await fs.readdir(path.join(root, 'content'))).filter((file) => file.endsWith('.md'));
 const articles = [];
@@ -58,7 +72,7 @@ for (const file of files) {
   const title = meta.title || (firstHeading && headingText(firstHeading)) || key.replace(/[-_]/g, ' ');
   const description = meta.meta_description || meta.excerpt || raw.replace(/^#+ .*$/gm, '').replace(/[`*_>#\[\]()-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160) || title;
   const permalink = (meta.permalink || key).replace(/^\/+|\/+$/g, '');
-  articles.push({ key, title, description, excerpt: meta.excerpt || description, permalink, published: meta.published || '', category: meta.category || '', nextArticleKey: meta.next_article || '', tokens, firstHeading });
+  articles.push({ key, title, description, excerpt: meta.excerpt || description, permalink, published: meta.published || '', category: meta.category || '', nextArticleKey: meta.next_article || '', thumbnail: meta.thumbnail || '', thumbnailAlt: meta.thumbnail_alt || title, showThumbnail: meta.show_thumbnail !== false, tokens, firstHeading });
 }
 articles.sort((a, b) => (b.published || '').localeCompare(a.published || '') || a.title.localeCompare(b.title));
 
@@ -81,6 +95,7 @@ for (const article of articles) {
   const toc = [];
   const usedIds = new Map();
   const articleRenderer = new marked.Renderer();
+  articleRenderer.image = renderer.image;
   articleRenderer.heading = ({ tokens, depth }) => {
     const rendered = articleRenderer.parser.parseInline(tokens);
     const plain = rendered.replace(/<[^>]*>/g, '');
@@ -107,16 +122,24 @@ for (const article of articles) {
     : '';
   const authorDescription = site.author_description || '';
   const authorUrl = site.author_url || '';
-  const authorSection = `<section class="author-card" aria-label="作者情報"><div class="author-copy"><div class="section-label">この記事を書いた人</div><strong>${esc(site.author)}</strong>${authorDescription ? `<p>${esc(authorDescription)}</p>` : ''}${authorUrl ? `<a class="author-link" href="${esc(authorUrl)}" rel="author">プロフィールを見る</a>` : ''}</div><div class="share-control"><button type="button" data-share data-share-title="${esc(article.title)}" data-share-url="${esc(canonical)}">記事を共有</button><span data-share-status role="status" aria-live="polite"></span></div></section>`;
+  const authorImage = site.author_image
+    ? `<img src="${esc(imageUrl(basePath, site.author_image))}" alt="" loading="lazy">`
+    : `<span aria-hidden="true">${esc([...String(site.author || '著者')][0])}</span>`;
+  const authorSection = `<section class="author-card" aria-label="この記事を書いた人"><div class="author-avatar">${authorImage}</div><div class="author-copy"><div class="section-label">この記事を書いた人</div><strong>${esc(site.author)}</strong>${authorDescription ? `<p>${esc(authorDescription)}</p>` : ''}${authorUrl ? `<a class="author-link" href="${esc(authorUrl)}" rel="author">プロフィールを見る</a>` : ''}</div></section>`;
+  const thumbnailImageUrl = imageUrl(basePath, article.thumbnail);
+  const thumbnail = thumbnailImageUrl && article.showThumbnail
+    ? `<figure class="article-thumbnail"><img src="${esc(thumbnailImageUrl)}" alt="${esc(article.thumbnailAlt)}" fetchpriority="high"></figure>`
+    : '';
+  const articleActions = `<div class="article-actions" aria-label="記事の操作"><button type="button" class="icon-button" data-copy-link data-share-url="${esc(canonical)}" aria-label="記事リンクをコピー" title="リンクをコピー"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button><button type="button" class="icon-button" data-share data-share-title="${esc(article.title)}" data-share-url="${esc(canonical)}" aria-label="記事を共有" title="記事を共有"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg></button><span class="share-status" data-share-status role="status" aria-live="polite"></span></div>`;
   const recommendationSection = recommendations.length
     ? `<section class="recommendations" aria-labelledby="recommendations-title"><div class="section-label">おすすめ記事</div><h2 id="recommendations-title">ほかの記事も読む</h2><ul class="recommendation-list">${recommendations.map((candidate) => `<li><div class="article-meta">${candidate.published ? `<time datetime="${esc(candidate.published)}">${esc(candidate.published)}</time>` : ''}${candidate.category ? ` · ${esc(candidate.category)}` : ''}</div><h3><a href="${esc(withBase(basePath, `/${candidate.permalink}/`))}">${esc(candidate.title)}</a></h3><p>${esc(candidate.excerpt)}</p></li>`).join('')}</ul></section>`
     : '';
   const jsonld = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: article.title, description: article.description, datePublished: article.published || undefined, author: { '@type': 'Person', name: site.author }, mainEntityOfPage: canonical, url: canonical, publisher: { '@type': 'Organization', name: site.title } };
   // Inline the small share handler so it still works when a static host's
   // fallback/rewrite rules return HTML for /js/share.js instead of the asset.
-  const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${tocHtml}<article class="prose">${html}</article>${nextSection}${authorSection}${recommendationSection}<p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main><script>${shareScript}</script>`;
+  const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${thumbnail}${tocHtml}<article class="prose">${html}</article>${articleActions}${nextSection}${authorSection}${recommendationSection}<p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main><script>${shareScript}</script>`;
   const extra = `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>`;
-  const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra });
+  const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra, ogImage: thumbnailImageUrl ? new URL(thumbnailImageUrl, siteUrl).href : '' });
   const destination = path.join(out, article.permalink, 'index.html');
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await fs.writeFile(destination, htmlPage);

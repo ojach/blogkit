@@ -62,16 +62,41 @@ Markdownの最初のH1がタイトルになります。メタ情報がない場�
 - `next_article` に記事のファイル名（拡張子なし）または `permalink` を指定すると、その記事を表示します。学習順やシリーズ、案内したい導線を記事ごとに設定できます。
 - 未指定の場合は公開日の並びで次に来る記事を表示します。最後の記事では最新の別記事を表示します。記事が1件だけなら「次に読む」は表示しません。
 - 作者名は `site.json` の `author` を使います。任意で `author_description` と `author_url` を追加できます。
+- `author_image` に `public/` 内の画像パス（例: `/images/author.webp`）を指定すると、作者カードに丸いアイコンを表示します。未指定時は名前の先頭文字を表示します。
+- 画像は `public/images/` に置きます。作者画像はファイル名だけ（例: `author.webp`）で指定でき、GitHub Pagesのプロジェクト用パスもビルド時に補完します。
 - 共有ボタンはスマートフォンなどでは共有メニューを開き、対応しない環境では記事URLをコピーします。
 - おすすめ記事は新着順から最大3件を表示し、自分自身と「次に読む」記事は候補から除外します。紹介文は `excerpt` → `meta_description` → 本文冒頭の順で生成します。
 
 ```json
 {
   "author": "Your Name",
+  "author_image": "author.webp",
   "author_description": "書いている人の短い紹介。",
   "author_url": "https://example.com/about/"
 }
 ```
+
+### 記事内画像とサムネイル
+
+記事内画像はMarkdownでファイル名だけを指定できます。画像は `public/images/` に置いてください。
+
+```md
+![画面のスクリーンショット](screen.webp)
+```
+
+記事のサムネイルは `articles.json` に設定します。指定すると記事上部とOGP/Twitter Cardに使われます。記事上部だけ非表示にしてOGP画像として使う場合は `show_thumbnail` を `false` にします。
+
+```json
+{
+  "my-new-article": {
+    "thumbnail": "article-cover.webp",
+    "thumbnail_alt": "記事のカバー画像",
+    "show_thumbnail": true
+  }
+}
+```
+
+`thumbnail` と `author_image` はファイル名だけで指定できます。サブフォルダを使う場合は `covers/article-cover.webp` のように `images/` 以下のパスを書けます。
 
 ## `blogkit.ojapp.app` へ公開
 
