@@ -34,17 +34,29 @@ function isMobileDevice() {
 
 // Delegation also works if the share button is rendered after this script runs.
 document.addEventListener('click', async (event) => {
-  const button = event.target.closest('[data-share]');
+  const button = event.target.closest('[data-copy-link], [data-share]');
   if (!button) return;
 
   event.preventDefault();
-  const status = button.closest('.share-control')?.querySelector('[data-share-status]');
+  const status = button.closest('.article-actions')?.querySelector('[data-share-status]');
   const data = {
     title: button.dataset.shareTitle || document.title,
     url: button.dataset.shareUrl || window.location.href,
   };
 
-  if (status) status.textContent = '共有しています…';
+  const copyOnly = button.hasAttribute('data-copy-link');
+  if (status) status.textContent = copyOnly ? 'リンクをコピーしています…' : '共有しています…';
+
+  if (copyOnly) {
+    try {
+      await copyText(data.url);
+      if (status) status.textContent = 'リンクをコピーしました';
+    } catch (error) {
+      console.error('Article link copy failed:', error);
+      if (status) status.textContent = 'コピーできませんでした';
+    }
+    return;
+  }
 
   // Use the native share sheet on phones. Desktop browsers often expose
   // navigator.share without having a usable share target, so copy the URL there.
