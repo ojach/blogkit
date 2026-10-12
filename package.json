@@ -4,10 +4,15 @@
   "private": true,
   "type": "module",
   "description": "A lightweight static blog engine for your own domain.",
-  "scripts": {"build": "node scripts/build.js"},
-  "engines": {"node": ">=20"},
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "marked": "^17.0.5",
-    "sharp": "^0.35.4"
+    "sharp": "^0.35.4",
+    "shiki": "^4.5.0"
   }
 }

@@ -34,6 +34,29 @@ function isMobileDevice() {
 
 // Delegation also works if the share button is rendered after this script runs.
 document.addEventListener('click', async (event) => {
+  const codeButton = event.target.closest('[data-copy-code]');
+  if (codeButton) {
+    event.preventDefault();
+    const status = codeButton.closest('.code-header')?.querySelector('[data-code-copy-status]');
+    const originalLabel = codeButton.textContent;
+    try {
+      const binary = atob(codeButton.dataset.copyCode);
+      const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+      await copyText(new TextDecoder().decode(bytes));
+      codeButton.textContent = 'コピー済み';
+      if (status) status.textContent = 'コードをコピーしました';
+    } catch (error) {
+      console.error('Code copy failed:', error);
+      codeButton.textContent = '失敗';
+      if (status) status.textContent = 'コードをコピーできませんでした';
+    }
+    window.setTimeout(() => {
+      codeButton.textContent = originalLabel;
+      if (status) status.textContent = '';
+    }, 1800);
+    return;
+  }
+
   const button = event.target.closest('[data-copy-link], [data-share]');
   if (!button) return;
 

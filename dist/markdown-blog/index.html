@@ -1,9 +1,8 @@
 <!doctype html><html lang="ja" style="--brand:#187a68"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Markdownから、自分のブログを公開する | OJapp Blog Kit</title><meta name="description" content="OJapp Blog Kitのサンプル記事です。Markdownを正本にして、自分のドメインで記事を公開する流れを紹介します。"><link rel="canonical" href="https://blogkit.ojapp.app/markdown-blog/"><link rel="icon" href="/images/ghost.webp"><meta property="og:type" content="article"><meta property="og:site_name" content="OJapp Blog Kit"><meta property="og:title" content="Markdownから、自分のブログを公開する | OJapp Blog Kit"><meta property="og:description" content="OJapp Blog Kitのサンプル記事です。Markdownを正本にして、自分のドメインで記事を公開する流れを紹介します。"><meta property="og:url" content="https://blogkit.ojapp.app/markdown-blog/"><meta property="og:image" content="https://blogkit.ojapp.app/ogp/first-article.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://blogkit.ojapp.app/ogp/first-article.png"><meta name="twitter:title" content="Markdownから、自分のブログを公開する | OJapp Blog Kit"><meta name="twitter:description" content="OJapp Blog Kitのサンプル記事です。Markdownを正本にして、自分のドメインで記事を公開する流れを紹介します。"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/highlight.css"><link rel="alternate" type="application/rss+xml" title="OJapp Blog Kit RSS" href="/rss.xml"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Markdownから、自分のブログを公開する","description":"OJapp Blog Kitのサンプル記事です。Markdownを正本にして、自分のドメインで記事を公開する流れを紹介します。","datePublished":"2026-10-09","author":{"@type":"Person","name":"おじゃち✿"},"mainEntityOfPage":"https://blogkit.ojapp.app/markdown-blog/","url":"https://blogkit.ojapp.app/markdown-blog/","publisher":{"@type":"Organization","name":"OJapp Blog Kit"}}</script></head><body><header class="site-header"><div class="header-inner"><a class="brand" href="/">OJapp Blog Kit</a><nav class="nav"><a href="/">記事一覧</a><a href="/rss.xml">RSS</a></nav></div></header><main class="article"><header class="article-head"><div class="article-meta"><time datetime="2026-10-09">2026-10-09</time> · Blog Kit</div><h1>Markdownから、自分のブログを公開する</h1><p class="article-description">OJapp Blog Kitのサンプル記事です。Markdownを正本にして、自分のドメインで記事を公開する流れを紹介します。</p></header><details class="toc" open><summary>目次</summary><ul><li class=""><a href="#記事を書く">記事を書く</a></li><li class=""><a href="#自分の場所に積み上け-る">自分の場所に積み上げる</a></li></ul></details><article class="prose"><p>OJapp Blog Kitは、Markdownで書いた記事を自分のドメインで公開するための小さなブログエンジンです。</p>
 <h2 id="記事を書く">記事を書く</h2>
 <p>記事本文は <code>content/</code> にMarkdownファイルとして保存します。メタ情報は必要なものだけ <code>articles.json</code> に書きます。タイトルは本文の最初の見出しから自動で取得できます。</p>
-<pre><code class="language-js">// 記事を追加したらビルド
-npm run build
-</code></pre>
+<div class="code-block" style="--indent-size:2ch"><div class="code-header"><span class="code-language">JavaScript</span><button class="code-copy" type="button" data-copy-code="Ly8g6KiY5LqL44KS6L+95Yqg44GX44Gf44KJ44OT44Or44OJCm5wbSBydW4gYnVpbGQ=">コピー</button><span class="code-copy-status" data-code-copy-status role="status" aria-live="polite"></span></div><pre class="shiki vitesse-dark" style="background-color:#121212;color:#dbd7caee" tabindex="0"><code><span class="line" style="--indent-width:0ch"><span style="color:#758575DD">// 記事を追加したらビルド</span></span>
+<span class="line" style="--indent-width:0ch"><span style="color:#BD976A">npm</span><span style="color:#BD976A"> run</span><span style="color:#BD976A"> build</span></span></code></pre></div>
 <h2 id="自分の場所に積み上け-る">自分の場所に積み上げる</h2>
 <p>GitHubへPushするとCloudflare Pagesが静的HTMLを配信します。記事の元データは普通のMarkdownとJSONなので、サイトの表示方法や公開先を変えても持ち運べます。</p>
 <table>
@@ -59,6 +58,29 @@ function isMobileDevice() {
 
 // Delegation also works if the share button is rendered after this script runs.
 document.addEventListener('click', async (event) => {
+  const codeButton = event.target.closest('[data-copy-code]');
+  if (codeButton) {
+    event.preventDefault();
+    const status = codeButton.closest('.code-header')?.querySelector('[data-code-copy-status]');
+    const originalLabel = codeButton.textContent;
+    try {
+      const binary = atob(codeButton.dataset.copyCode);
+      const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+      await copyText(new TextDecoder().decode(bytes));
+      codeButton.textContent = 'コピー済み';
+      if (status) status.textContent = 'コードをコピーしました';
+    } catch (error) {
+      console.error('Code copy failed:', error);
+      codeButton.textContent = '失敗';
+      if (status) status.textContent = 'コードをコピーできませんでした';
+    }
+    window.setTimeout(() => {
+      codeButton.textContent = originalLabel;
+      if (status) status.textContent = '';
+    }, 1800);
+    return;
+  }
+
   const button = event.target.closest('[data-copy-link], [data-share]');
   if (!button) return;
 

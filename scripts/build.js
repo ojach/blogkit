@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
+import { codeToHtml } from 'shiki';
 import { generateOgp } from './ogp.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -10,17 +11,78 @@ const readJson = async (file) => JSON.parse(await fs.readFile(path.join(root, fi
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const slug = (value) => value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9ぁ-んァ-ヶ一-龠ー]+/g, '-').replace(/^-|-$/g, '') || 'section';
 const codeEscape = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+const codeLanguageLabels = {
+  bash: 'Bash', c: 'C', cpp: 'C++', css: 'CSS', diff: 'Diff', html: 'HTML',
+  java: 'Java', javascript: 'JavaScript', js: 'JavaScript', json: 'JSON',
+  jsx: 'JSX', markdown: 'Markdown', md: 'Markdown', php: 'PHP', py: 'Python',
+  python: 'Python', sh: 'Shell', shell: 'Shell', sql: 'SQL', ts: 'TypeScript',
+  tsx: 'TSX', typescript: 'TypeScript', txt: 'Text', text: 'Text', xml: 'XML',
+  yaml: 'YAML', yml: 'YAML',
+};
 
-function colorize(code, lang) {
-  let safe = codeEscape(code);
-  if (!lang) return safe;
-  const rules = lang === 'json'
-    ? [/(&quot;.*?&quot;)(?=\s*:)/g, /(:\s*)(&quot;.*?&quot;)/g, /\b(true|false|null)\b/g, /\b\d+\b/g]
-    : lang === 'css'
-      ? [/([.#]?[\w-]+)(\s*\{)/g, /([\w-]+)(\s*:)/g, /#[0-9a-fA-F]{3,8}\b/g]
-      : [/\b(const|let|var|function|return|if|else|new|import|from|export|async|await|class)\b/g, /(&quot;.*?&quot;|&#39;.*?&#39;|`.*?`)/g, /\b(true|false|null|undefined)\b/g, /\b\d+\b/g];
-  for (const rule of rules) safe = safe.replace(rule, (match) => `<span class="tok">${match}</span>`);
-  return safe.replace(/(\/\/[^\n]*|# [^\n]*)/g, '<span class="tok-comment">$1</span>');
+function parseCodeInfo(info) {
+  const raw = String(info || '').trim();
+  const language = raw.split(/\s+/, 1)[0].toLowerCase();
+  return {
+    language,
+    label: codeLanguageLabels[language] || (language ? language : 'Text'),
+  };
+}
+
+function greatestCommonDivisor(a, b) {
+  return b ? greatestCommonDivisor(b, a % b) : a;
+}
+
+function indentationUnit(code, language) {
+  const widths = String(code).split('\n').map((line) => {
+    const content = language === 'diff' && /^[+-]/.test(line) ? line.slice(1) : line;
+    const indent = content.match(/^[ \t]+/)?.[0] || '';
+    return indent.includes('\t') ? indent.length * 2 : indent.length;
+  }).filter(Boolean);
+  return widths.reduce((unit, width) => greatestCommonDivisor(unit, width), 0) || 2;
+}
+
+async function renderCodeBlock({ text, lang }) {
+  const { language, label } = parseCodeInfo(lang);
+  const diff = language === 'diff';
+  const indentSize = indentationUnit(text, language);
+  const sourceLines = String(text).replace(/\r\n?/g, '\n').split('\n');
+  let highlighterLanguage = language || 'text';
+  let highlighted;
+  const transformers = [{
+    name: 'ojapp-code-block-guides',
+    line(node, lineNumber) {
+      let sourceLine = sourceLines[lineNumber - 1] || '';
+      if (diff && /^[+-]/.test(sourceLine)) sourceLine = sourceLine.slice(1);
+      const indent = sourceLine.match(/^[ \t]+/)?.[0] || '';
+      const width = indent.includes('\t') ? indent.length * 2 : indent.length;
+      node.properties.style = `--indent-width:${Math.floor(width / indentSize) * indentSize}ch`;
+      if (diff && sourceLines[lineNumber - 1]?.startsWith('+')) this.addClassToHast(node, 'is-addition');
+      if (diff && sourceLines[lineNumber - 1]?.startsWith('-')) this.addClassToHast(node, 'is-deletion');
+    },
+  }];
+
+  try {
+    highlighted = await codeToHtml(String(text), { lang: highlighterLanguage, theme: 'vitesse-dark', transformers });
+  } catch {
+    // Unknown language names remain readable as plain text instead of failing the whole build.
+    highlighterLanguage = 'text';
+    highlighted = await codeToHtml(String(text), { lang: highlighterLanguage, theme: 'vitesse-dark', transformers });
+  }
+
+  const copyData = Buffer.from(String(text), 'utf8').toString('base64');
+  return `<div class="code-block${diff ? ' code-block--diff' : ''}" style="--indent-size:${indentSize}ch"><div class="code-header"><span class="code-language">${codeEscape(label)}</span><button class="code-copy" type="button" data-copy-code="${copyData}">コピー</button><span class="code-copy-status" data-code-copy-status role="status" aria-live="polite"></span></div>${highlighted}</div>\n`;
+}
+
+function collectCodeTokens(tokens, result = []) {
+  for (const token of tokens || []) {
+    if (token.type === 'code') result.push(token);
+    if (token.tokens) collectCodeTokens(token.tokens, result);
+    if (token.items) {
+      for (const item of token.items) collectCodeTokens(item.tokens, result);
+    }
+  }
+  return result;
 }
 
 function withBase(basePath, pathname) {
@@ -61,7 +123,6 @@ const basePath = siteUrl.pathname.replace(/\/$/, '');
 const brandColor = /^#[\da-f]{3}(?:[\da-f]{3})?$/i.test(String(site.brand_color || '')) ? site.brand_color : '#187a68';
 const absoluteUrl = (pathname) => new URL(withBase(basePath, pathname), siteUrl.origin).href;
 const renderer = new marked.Renderer();
-renderer.code = ({ text, lang }) => `<pre><code class="language-${esc(lang || 'text')}">${colorize(text, lang || '')}</code></pre>\n`;
 renderer.image = ({ href, title, text }) => `<img src="${esc(imageUrl(basePath, href))}" alt="${esc(text)}"${title ? ` title="${esc(title)}"` : ''} loading="lazy">`;
 
 const files = (await fs.readdir(path.join(root, 'content'))).filter((file) => file.endsWith('.md'));
@@ -79,6 +140,15 @@ for (const file of files) {
   articles.push({ key, title, description, excerpt: meta.excerpt || description, permalink, published: meta.published || '', category: meta.category || '', nextArticleKey: meta.next_article || '', thumbnail: meta.thumbnail || '', thumbnailAlt: meta.thumbnail_alt || title, showThumbnail: meta.show_thumbnail !== false, tokens, firstHeading });
 }
 articles.sort((a, b) => (b.published || '').localeCompare(a.published || '') || a.title.localeCompare(b.title));
+
+const codeBlockHtml = new Map();
+for (const article of articles) {
+  for (const token of collectCodeTokens(article.tokens)) {
+    const key = JSON.stringify([token.text, token.lang || '']);
+    if (!codeBlockHtml.has(key)) codeBlockHtml.set(key, await renderCodeBlock(token));
+  }
+}
+renderer.code = ({ text, lang }) => codeBlockHtml.get(JSON.stringify([text, lang || ''])) || `<pre><code>${codeEscape(text)}</code></pre>\n`;
 
 const searchIndex = articles.map((article) => ({
   title: article.title,
@@ -100,6 +170,7 @@ for (const article of articles) {
   const usedIds = new Map();
   const articleRenderer = new marked.Renderer();
   articleRenderer.image = renderer.image;
+  articleRenderer.code = renderer.code;
   articleRenderer.heading = ({ tokens, depth }) => {
     const rendered = articleRenderer.parser.parseInline(tokens);
     const plain = rendered.replace(/<[^>]*>/g, '');
