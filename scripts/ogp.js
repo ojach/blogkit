@@ -74,7 +74,7 @@ export async function generateOgp({ root, destination, title, site, brandColor }
   const blogIcon = await embeddedImage(root, site.icon);
   const authorIcon = await embeddedImage(root, site.author_image);
   const fullTitle = [...String(title ?? '')];
-  const displayTitle = fullTitle.length > 60 ? `${fullTitle.slice(0, 59).join('')}窶ｦ` : String(title ?? '');
+  const displayTitle = fullTitle.length > 60 ? `${fullTitle.slice(0, 59).join('')}…` : String(title ?? '');
   const lines = splitTitle(displayTitle, fullTitle.length > 50 ? 23 : fullTitle.length > 32 ? 20 : 17);
   const fontSize = fullTitle.length > 50 ? 43 : fullTitle.length > 32 ? 50 : 58;
   const lineHeight = Math.round(fontSize * 1.34);
@@ -82,7 +82,7 @@ export async function generateOgp({ root, destination, title, site, brandColor }
   const titleStartY = Math.round(330 - titleHeight / 2 + fontSize * 0.82);
   const titleMarkup = lines.map((line, index) => `<text x="92" y="${titleStartY + index * lineHeight}" font-family="Noto Sans JP, Noto Sans CJK JP, Yu Gothic, Meiryo, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="-1.5" fill="#17212b">${escapeXml(line)}</text>`).join('');
   const siteName = escapeXml(site.title || 'My Blog');
-  const authorName = escapeXml(site.author || '闡苓�');
+  const authorName = escapeXml(site.author || '著者');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
     <defs>
       <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#17212b" flood-opacity=".08"/></filter>
@@ -99,7 +99,7 @@ export async function generateOgp({ root, destination, title, site, brandColor }
     </g>
     ${titleMarkup}
     <rect x="92" y="475" width="108" height="6" rx="3" fill="${accent}"/>
-    ${iconMarkup(authorIcon, 926, 510, 66, 'authorIcon', site.author || '闡苓�', accent)}
+    ${iconMarkup(authorIcon, 926, 510, 66, 'authorIcon', site.author || '著者', accent)}
     <text x="1010" y="552" font-family="Noto Sans JP, Noto Sans CJK JP, Yu Gothic, Meiryo, sans-serif" font-size="23" font-weight="600" fill="#475569">${authorName}</text>
   </svg>`;
   await fs.mkdir(path.dirname(destination), { recursive: true });
