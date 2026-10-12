@@ -2,9 +2,9 @@
   "title": "OJapp Blog Kit",
   "description": "Markdownで書いて、自分のドメインに記事を積み上げるブログ。",
   "url": "https://blogkit.ojapp.app",
-  "language": "ja-JP",
-  "author": "おじゃち✿",
-  "author_image": "54D65B1A-C855-41FC-B2AC-7640442B22DB.png",
-  "author_description": "OJapp代表 WPプラグインPWAマーケティング・OnePage.OneApp.(1P1A)・ホーム画面名刺＆SNSのPetal・その他OJappToolsなどを開発。PWA・ホーム画面・Safari挙動・軽量Web体験を中心に、実験しながらWebアプリを開発しています。",
-  "author_url": "https://ojapp.app/ojach/app/"
+  "author": "OJapp",
+  "brand_color": "#187a68",
+  "icon": "",
+  "author_image": "",
+  "language": "ja-JP"
 }

@@ -15,7 +15,7 @@ Markdownで記事を書き、GitHubへのPushからCloudflare Pagesで静的公�
 npm install
 ```
 
-`site.json` は公開URL・サイト名・説明・著者名を設定するファイルです。自分のブログに使う場合は、公開URLなどを変更します。記事は `content/` にMarkdownで追加します。
+`site.json` は公開URL・サイト名・説明・著者名・ブログカラーなどを設定するファイルです。自分のブログに使う場合は、公開URLなどを変更します。記事は `content/` にMarkdownで追加します。
 
 ```sh
 npm run build
@@ -52,6 +52,7 @@ Markdownの最初のH1がタイトルになります。メタ情報がない場�
 - Markdown記事を静的HTMLへ変換（見出しID、目次、表、画像、コードハイライト）
 - 新着順の記事一覧とページ内検索（タイトル・説明文）
 - 記事ごとのcanonical、meta description、OGP、Twitter Card、BlogPosting JSON-LD
+- 記事タイトル・ブログ情報・作者情報を使ったOGP画像の自動生成（1200×630 PNG）
 - `sitemap.xml`、`rss.xml`、`robots.txt`
 - PC・スマートフォン向けの読みやすいレイアウト
 
@@ -84,7 +85,7 @@ Markdownの最初のH1がタイトルになります。メタ情報がない場�
 ![画面のスクリーンショット](screen.webp)
 ```
 
-記事のサムネイルは `articles.json` に設定します。指定すると記事上部とOGP/Twitter Cardに使われます。記事上部だけ非表示にしてOGP画像として使う場合は `show_thumbnail` を `false` にします。
+記事のサムネイルは `articles.json` に設定します。指定すると記事上部に表示されます。`show_thumbnail` を `false` にすると記事上部にも表示しません。OGP画像はサムネイルとは別に、記事タイトル・ブログ情報・作者情報から自動生成します。
 
 ```json
 {
@@ -97,6 +98,25 @@ Markdownの最初のH1がタイトルになります。メタ情報がない場�
 ```
 
 `thumbnail` と `author_image` はファイル名だけで指定できます。サブフォルダを使う場合は `covers/article-cover.webp` のように `images/` 以下のパスを書けます。
+
+### OGP画像
+
+記事ごとのOGP画像は `dist/ogp/` にPNGで自動生成され、記事HTMLの `og:image` とTwitter Cardに設定されます。画像にはブログアイコンとブログ名（左上）、記事タイトル（中央）、作者アイコンと名前（右下）、ブログカラーの外枠と右上の丸いモチーフを表示します。
+
+ブログアイコン・作者アイコンは `public/images/` に置き、`site.json` でファイル名を指定します。未指定時は名前の先頭文字をアイコン代わりに表示します。`brand_color` はリンク色とOGPのアクセント色に共通で使います。
+
+```json
+{
+  "title": "My Blog",
+  "author": "Your Name",
+  "brand_color": "#187a68",
+  "icon": "blog-icon.webp",
+  "author_image": "author.webp"
+}
+```
+
+OGP生成にはPNG出力用の `sharp` を使います。通常どおり `npm install` を実行すれば導入されます。
+日本語を含むOGP画像の生成には、ビルド環境に日本語フォントが必要です。Windows/macOSでは通常そのまま使えます。GitHub PagesのActionsにはNoto CJKの導入処理を含めています。Cloudflare Pagesで生成時に日本語が欠ける場合は、ビルド環境にNoto CJKフォントを追加してください。
 
 ## `blogkit.ojapp.app` へ公開
 

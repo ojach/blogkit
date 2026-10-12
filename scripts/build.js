@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
+import { generateOgp } from './ogp.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, 'dist');
@@ -37,7 +38,7 @@ function imageUrl(basePath, value) {
   return withBase(basePath, imagePath);
 }
 
-function shell({ title, description, canonical, site, basePath, body, extra = '', ogImage = '', lang = 'ja' }) {
+function shell({ title, description, canonical, site, basePath, body, extra = '', ogImage = '', lang = 'ja', brandColor = '#187a68' }) {
   const homeUrl = withBase(basePath, '/');
   const cssUrl = withBase(basePath, '/css/style.css');
   const highlightUrl = withBase(basePath, '/css/highlight.css');
@@ -45,7 +46,7 @@ function shell({ title, description, canonical, site, basePath, body, extra = ''
   const ogImageTags = ogImage
     ? `<meta property="og:image" content="${esc(ogImage)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${esc(ogImage)}">`
     : '<meta name="twitter:card" content="summary">';
-  return `<!doctype html><html lang="${esc(lang)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="${esc(canonical)}"><meta property="og:type" content="${extra ? 'article' : 'website'}"><meta property="og:site_name" content="${esc(site.title)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(canonical)}">${ogImageTags}<meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(description)}"><link rel="stylesheet" href="${esc(cssUrl)}"><link rel="stylesheet" href="${esc(highlightUrl)}"><link rel="alternate" type="application/rss+xml" title="${esc(site.title)} RSS" href="${esc(rssUrl)}">${extra}</head><body><header class="site-header"><div class="header-inner"><a class="brand" href="${esc(homeUrl)}">${esc(site.title)}</a><nav class="nav"><a href="${esc(homeUrl)}">記事一覧</a><a href="${esc(rssUrl)}">RSS</a></nav></div></header>${body}<footer class="footer">${esc(site.title)} · Built for the AI Writing Era.</footer></body></html>`;
+  return `<!doctype html><html lang="${esc(lang)}" style="--brand:${brandColor}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="${esc(canonical)}"><meta property="og:type" content="${extra ? 'article' : 'website'}"><meta property="og:site_name" content="${esc(site.title)}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${esc(canonical)}">${ogImageTags}<meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(description)}"><link rel="stylesheet" href="${esc(cssUrl)}"><link rel="stylesheet" href="${esc(highlightUrl)}"><link rel="alternate" type="application/rss+xml" title="${esc(site.title)} RSS" href="${esc(rssUrl)}">${extra}</head><body><header class="site-header"><div class="header-inner"><a class="brand" href="${esc(homeUrl)}">${esc(site.title)}</a><nav class="nav"><a href="${esc(homeUrl)}">記事一覧</a><a href="${esc(rssUrl)}">RSS</a></nav></div></header>${body}<footer class="footer">${esc(site.title)} · Built for the AI Writing Era.</footer></body></html>`;
 }
 
 await fs.rm(out, { recursive: true, force: true });
@@ -55,6 +56,7 @@ const [site, metadata] = await Promise.all([readJson('site.json'), readJson('art
 const shareScript = await fs.readFile(path.join(root, 'public/js/share.js'), 'utf8');
 const siteUrl = new URL(site.url);
 const basePath = siteUrl.pathname.replace(/\/$/, '');
+const brandColor = /^#[\da-f]{3}(?:[\da-f]{3})?$/i.test(String(site.brand_color || '')) ? site.brand_color : '#187a68';
 const absoluteUrl = (pathname) => new URL(withBase(basePath, pathname), siteUrl.origin).href;
 const renderer = new marked.Renderer();
 renderer.code = ({ text, lang }) => `<pre><code class="language-${esc(lang || 'text')}">${colorize(text, lang || '')}</code></pre>\n`;
@@ -88,7 +90,7 @@ const cards = articles.map((article) => `<li class="article-card" data-card><div
 const searchIndexUrl = withBase(basePath, '/search-index.json');
 const home = `<main class="page"><div class="home-grid"><section><div class="intro"><div class="eyebrow">PERSONAL BLOG ENGINE</div><h1>記事を書くことに、集中する。</h1><p class="muted">Markdownで書いて、自分のドメインに公開。</p></div><label class="eyebrow" for="article-search">記事を検索</label><input id="article-search" class="search" type="search" placeholder="タイトル・説明文から検索" data-search data-index-url="${esc(searchIndexUrl)}"><ul class="article-list" data-results>${cards || '<li class="empty">記事はまだありません。</li>'}</ul></section><aside class="side-note"><strong>Write freely.<br>Own what you build.</strong><p class="muted">普通のMarkdownファイルから、自分のブログを育てます。</p></aside></div></main><script src="${esc(withBase(basePath, '/js/search.js'))}" defer></script>`;
 
-await fs.writeFile(path.join(out, 'index.html'), shell({ title: site.title, description: site.description, canonical: absoluteUrl('/'), site, basePath, body: home }));
+await fs.writeFile(path.join(out, 'index.html'), shell({ title: site.title, description: site.description, canonical: absoluteUrl('/'), site, basePath, body: home, brandColor }));
 const sitemap = [];
 const rss = [];
 for (const article of articles) {
@@ -110,6 +112,10 @@ for (const article of articles) {
   const html = marked.parser(contentTokens, { renderer: articleRenderer });
   const tocHtml = toc.length ? `<details class="toc" open><summary>目次</summary><ul>${toc.map((item) => `<li class="${item.level === 3 ? 'toc-h3' : ''}"><a href="#${esc(item.id)}">${esc(item.text)}</a></li>`).join('')}</ul></details>` : '';
   const canonical = absoluteUrl(`/${article.permalink}/`);
+  const ogpFilename = `${slug(article.key)}.png`;
+  const ogpPath = path.join(out, 'ogp', ogpFilename);
+  await generateOgp({ root, destination: ogpPath, title: article.title, site, brandColor });
+  const ogImage = absoluteUrl(`/ogp/${ogpFilename}`);
   const articleIndex = articles.indexOf(article);
   const explicitNext = article.nextArticleKey
     ? articles.find((candidate) => candidate !== article && (candidate.key === article.nextArticleKey || candidate.permalink === article.nextArticleKey))
@@ -139,7 +145,7 @@ for (const article of articles) {
   // fallback/rewrite rules return HTML for /js/share.js instead of the asset.
   const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${thumbnail}${tocHtml}<article class="prose">${html}</article>${articleActions}${nextSection}${authorSection}${recommendationSection}<p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main><script>${shareScript}</script>`;
   const extra = `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>`;
-  const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra, ogImage: thumbnailImageUrl ? new URL(thumbnailImageUrl, siteUrl).href : '' });
+  const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra, ogImage, brandColor });
   const destination = path.join(out, article.permalink, 'index.html');
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await fs.writeFile(destination, htmlPage);
