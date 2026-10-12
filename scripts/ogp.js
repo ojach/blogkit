@@ -93,9 +93,9 @@ export async function generateOgp({ root, destination, title, site, brandColor }
     ${iconMarkup(blogIcon, 76, 72, 56, 'blogIcon', site.title || 'B', accent)}
     <text x="148" y="111" font-family="Noto Sans JP, Noto Sans CJK JP, Yu Gothic, Meiryo, sans-serif" font-size="27" font-weight="700" fill="#17212b">${siteName}</text>
     <g clip-path="url(#cardClip)">
-      <circle cx="1145" cy="74" r="205" fill="${tint(accent, 0.91)}" opacity=".72"/>
-      <circle cx="1028" cy="204" r="150" fill="${tint(accent, 0.96)}" opacity=".9"/>
-      <circle cx="1222" cy="362" r="170" fill="none" stroke="${accent}" stroke-width="2" opacity=".62"/>
+      <circle cx="1028" cy="180" r="150" fill="${tint(accent, 0.96)}" opacity=".9"/>
+      <circle cx="1145" cy="74" r="205" fill="${tint(accent, 0.85)}" opacity=".9"/>
+      <circle cx="1222" cy="225" r="170" fill="none" stroke="${accent}" stroke-width="2" opacity=".62"/>
     </g>
     ${titleMarkup}
     <rect x="92" y="475" width="108" height="6" rx="3" fill="${accent}"/>
