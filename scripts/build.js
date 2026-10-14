@@ -199,7 +199,7 @@ for (const article of articles) {
     ? `<p class="article-summary-next"><span>次に読む</span><a href="${esc(withBase(basePath, `/${nextArticle.permalink}/`))}">${esc(nextArticle.title)}</a></p>`
     : '';
   const summaryHtml = site.features?.article_summary !== false && article.summary
-    ? `<details class="article-summary" open><summary>1分で読める要約</summary><div class="article-summary-content">${marked.parse(article.summary)}${summaryNextHtml}</div></details>`
+    ? `<details class="article-summary"><summary>1分で読める要約</summary><div class="article-summary-content">${marked.parse(article.summary)}${summaryNextHtml}</div></details>`
     : '';
   const recommendations = articles.filter((candidate) => candidate !== article && candidate !== nextArticle).slice(0, 3);
   const nextSection = nextArticle
