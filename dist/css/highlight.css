@@ -1,9 +1,9 @@
 .code-block {
   --indent-size: 2ch;
   overflow: hidden;
-  margin: 1.5rem 0;
+  margin: 1.2rem 0;
   border: 1px solid #292d35;
-  border-radius: 12px;
+  border-radius: 4px;
   background: #121212;
   color: #dbd7ca;
 }
@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 12px 6px 16px;
+  padding: 5px 12px 5px 16px;
   border-bottom: 1px solid #292d35;
   background: #191a1c;
   color: #c9c9c9;
@@ -58,13 +58,13 @@
 .prose .code-block > pre.shiki {
   max-width: 100%;
   margin: 0;
-  padding: 17px 20px 19px;
+  padding: 16px 20px 16px;
   overflow: auto;
   border: 0;
   border-radius: 0;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: .9rem;
-  line-height: 1.75;
+  font-size: .8rem;
+  line-height: 1.15;
   tab-size: 2;
   -webkit-overflow-scrolling: touch;
 }
@@ -81,7 +81,7 @@
 .code-block .line {
   position: relative;
   display: block;
-  min-height: 1.75em;
+  min-height: 1.15em;
   isolation: isolate;
 }
 
