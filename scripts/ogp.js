@@ -80,7 +80,7 @@ export async function generateOgp({ root, destination, title, site, brandColor }
   const lineHeight = Math.round(fontSize * 1.34);
   const titleHeight = lines.length * lineHeight;
   const titleStartY = Math.round(330 - titleHeight / 2 + fontSize * 0.82);
-  const titleMarkup = lines.map((line, index) => `<text x="92" y="${titleStartY + index * lineHeight}" font-family="Noto Sans JP, Noto Sans CJK JP, Yu Gothic, Meiryo, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="-1.5" fill="#17212b">${escapeXml(line)}</text>`).join('');
+  const titleMarkup = lines.map((line, index) => `<text x="92" y="${titleStartY + index * lineHeight}" font-family="'Noto Sans CJK JP'" font-size="${fontSize}" font-weight="700" letter-spacing="-1.5" fill="#17212b">${escapeXml(line)}</text>`).join('');
   const siteName = escapeXml(site.title || 'My Blog');
   const authorName = escapeXml(site.author || '著者');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
@@ -91,16 +91,16 @@ export async function generateOgp({ root, destination, title, site, brandColor }
     <rect width="${WIDTH}" height="${HEIGHT}" fill="${frame}"/>
     <rect x="20" y="20" width="1160" height="590" rx="28" fill="#fff" filter="url(#shadow)"/>
     ${iconMarkup(blogIcon, 76, 72, 56, 'blogIcon', site.title || 'B', accent)}
-    <text x="148" y="111" font-family="Noto Sans JP, Noto Sans CJK JP, Yu Gothic, Meiryo, sans-serif" font-size="27" font-weight="700" fill="#17212b">${siteName}</text>
+    <text x="148" y="111" font-family="'Noto Sans CJK JP'" font-size="27" font-weight="700" fill="#17212b">${siteName}</text>
     <g clip-path="url(#cardClip)">
-      <circle cx="1028" cy="180" r="150" fill="${tint(accent, 0.96)}" opacity=".9"/>
-      <circle cx="1145" cy="74" r="205" fill="${tint(accent, 0.85)}" opacity=".9"/>
-      <circle cx="1222" cy="225" r="170" fill="none" stroke="${accent}" stroke-width="2" opacity=".62"/>
+      <circle cx="1140" cy="68" r="185" fill="${tint(accent, 0.91)}" opacity=".72"/>
+      <circle cx="1000" cy="185" r="120" fill="${tint(accent, 0.96)}" opacity=".9"/>
+      <circle cx="1200" cy="265" r="150" fill="none" stroke="${accent}" stroke-width="2" opacity=".62"/>
     </g>
     ${titleMarkup}
     <rect x="92" y="475" width="108" height="6" rx="3" fill="${accent}"/>
     ${iconMarkup(authorIcon, 926, 510, 66, 'authorIcon', site.author || '著者', accent)}
-    <text x="1010" y="552" font-family="Noto Sans JP, Noto Sans CJK JP, Yu Gothic, Meiryo, sans-serif" font-size="23" font-weight="600" fill="#475569">${authorName}</text>
+    <text x="1010" y="552" font-family="'Noto Sans CJK JP'" font-size="23" font-weight="600" fill="#475569">${authorName}</text>
   </svg>`;
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await sharp(Buffer.from(svg)).png().toFile(destination);

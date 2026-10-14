@@ -137,7 +137,7 @@ for (const file of files) {
   const title = meta.title || (firstHeading && headingText(firstHeading)) || key.replace(/[-_]/g, ' ');
   const description = meta.meta_description || meta.excerpt || raw.replace(/^#+ .*$/gm, '').replace(/[`*_>#\[\]()-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160) || title;
   const permalink = (meta.permalink || key).replace(/^\/+|\/+$/g, '');
-  articles.push({ key, title, description, excerpt: meta.excerpt || description, permalink, published: meta.published || '', category: meta.category || '', nextArticleKey: meta.next_article || '', thumbnail: meta.thumbnail || '', thumbnailAlt: meta.thumbnail_alt || title, showThumbnail: meta.show_thumbnail !== false, tokens, firstHeading });
+  articles.push({ key, title, description, excerpt: meta.excerpt || description, summary: meta.summary || '', permalink, published: meta.published || '', category: meta.category || '', nextArticleKey: meta.next_article || '', thumbnail: meta.thumbnail || '', thumbnailAlt: meta.thumbnail_alt || title, showThumbnail: meta.show_thumbnail !== false, tokens, firstHeading });
 }
 articles.sort((a, b) => (b.published || '').localeCompare(a.published || '') || a.title.localeCompare(b.title));
 
@@ -195,6 +195,12 @@ for (const article of articles) {
     : null;
   const fallbackNext = articles[articleIndex + 1] || articles.find((candidate) => candidate !== article);
   const nextArticle = explicitNext || fallbackNext;
+  const summaryNextHtml = nextArticle
+    ? `<p class="article-summary-next"><span>次に読む</span><a href="${esc(withBase(basePath, `/${nextArticle.permalink}/`))}">${esc(nextArticle.title)}</a></p>`
+    : '';
+  const summaryHtml = site.features?.article_summary !== false && article.summary
+    ? `<details class="article-summary" open><summary>1分で読める要約</summary><div class="article-summary-content">${marked.parse(article.summary)}${summaryNextHtml}</div></details>`
+    : '';
   const recommendations = articles.filter((candidate) => candidate !== article && candidate !== nextArticle).slice(0, 3);
   const nextSection = nextArticle
     ? `<section class="next-read" aria-labelledby="next-read-title"><div class="section-label">次に読む</div><h2 id="next-read-title"><a href="${esc(withBase(basePath, `/${nextArticle.permalink}/`))}">${esc(nextArticle.title)}</a></h2><p>${esc(nextArticle.excerpt)}</p></section>`
@@ -216,7 +222,7 @@ for (const article of articles) {
   const jsonld = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: article.title, description: article.description, datePublished: article.published || undefined, author: { '@type': 'Person', name: site.author }, mainEntityOfPage: canonical, url: canonical, publisher: { '@type': 'Organization', name: site.title } };
   // Inline the small share handler so it still works when a static host's
   // fallback/rewrite rules return HTML for /js/share.js instead of the asset.
-  const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${thumbnail}${tocHtml}<article class="prose">${html}</article>${articleActions}${nextSection}${authorSection}${recommendationSection}<p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main><script>${shareScript}</script>`;
+  const articleBody = `<main class="article"><header class="article-head"><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(article.published)}</time>` : ''}${article.category ? ` · ${esc(article.category)}` : ''}</div><h1>${esc(article.title)}</h1><p class="article-description">${esc(article.description)}</p></header>${thumbnail}${summaryHtml}${tocHtml}<article class="prose">${html}</article>${articleActions}${nextSection}${authorSection}${recommendationSection}<p class="muted"><a href="${esc(withBase(basePath, '/'))}">← 記事一覧へ戻る</a></p></main><script>${shareScript}</script>`;
   const extra = `<script type="application/ld+json">${JSON.stringify(jsonld)}</script>`;
   const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra, ogImage, brandColor });
   const destination = path.join(out, article.permalink, 'index.html');

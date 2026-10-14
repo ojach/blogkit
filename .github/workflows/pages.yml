@@ -30,7 +30,11 @@ jobs:
           node-version: 22
 
       - name: Install Japanese fonts for generated OGP images
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y fonts-noto-cjk
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y fontconfig fonts-noto-cjk
+          sudo fc-cache -f
+          fc-match -f '%{family}\n' 'Noto Sans CJK JP'
 
       - name: Install dependencies
         run: npm install
