@@ -343,7 +343,6 @@ a:hover {
   gap: 8px 22px;
   margin: 16px 0 12px;
   padding: 14px 0;
-  border-block: 1px solid var(--line);
 }
 
 .footer-pages a {
