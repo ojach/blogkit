@@ -320,11 +320,47 @@ a:hover {
 
 .footer {
   border-top: 1px solid var(--line);
-  margin-top: 70px;
-  padding: 24px;
-  text-align: center;
+  margin-top: 76px;
+  padding: 34px 24px 26px;
   color: var(--muted);
-  font-size: .85rem;
+  font-size: .9rem;
+}
+
+.footer-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.footer-brand {
+  color: var(--ink);
+  font-weight: 750;
+  letter-spacing: -.025em;
+}
+
+.footer-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 16px 0 12px;
+  padding: 14px 0;
+  border-block: 1px solid var(--line);
+}
+
+.footer-pages a {
+  color: var(--muted);
+  font-size: .9rem;
+  font-weight: 550;
+  transition: color .15s ease;
+}
+
+.footer-pages a:hover {
+  color: var(--brand);
+}
+
+.footer-tagline {
+  margin: 0;
+  color: var(--muted);
+  font-size: .8rem;
 }
 
 .empty {
@@ -356,6 +392,14 @@ a:hover {
 }
 
 @media (max-width: 760px) {
+
+  .footer {
+    padding: 28px 18px 22px;
+  }
+
+  .footer-pages {
+    gap: 8px 18px;
+  }
 
   .header-inner {
     padding: 13px 18px;
