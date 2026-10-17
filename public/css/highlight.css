@@ -1,9 +1,9 @@
 .code-block {
   --indent-size: 2ch;
   overflow: hidden;
-  margin: 1.2rem 0;
+  margin: 1.5rem 0;
   border: 1px solid #292d35;
-  border-radius: 4px;
+  border-radius: 12px;
   background: #121212;
   color: #dbd7ca;
 }
@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 5px 12px 5px 16px;
+  padding: 6px 12px 6px 16px;
   border-bottom: 1px solid #292d35;
   background: #191a1c;
   color: #c9c9c9;
@@ -26,14 +26,28 @@
 }
 
 .code-copy {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 32px;
   border: 1px solid #3a3d43;
   border-radius: 7px;
-  padding: 5px 9px;
+  padding: 0;
   background: transparent;
   color: #d4d4d4;
   font: inherit;
   cursor: pointer;
   transition: background-color .15s ease, border-color .15s ease;
+}
+
+.code-copy svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
 }
 
 .code-copy:hover {
@@ -58,13 +72,13 @@
 .prose .code-block > pre.shiki {
   max-width: 100%;
   margin: 0;
-  padding: 16px 20px 16px;
+  padding: 17px 20px 19px;
   overflow: auto;
   border: 0;
   border-radius: 0;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: .8rem;
-  line-height: 1.15;
+  font-size: .9rem;
+  line-height: 1.75;
   tab-size: 2;
   -webkit-overflow-scrolling: touch;
 }
@@ -81,7 +95,7 @@
 .code-block .line {
   position: relative;
   display: block;
-  min-height: 1.15em;
+  min-height: 1.75em;
   isolation: isolate;
 }
 

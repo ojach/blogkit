@@ -38,20 +38,19 @@ document.addEventListener('click', async (event) => {
   if (codeButton) {
     event.preventDefault();
     const status = codeButton.closest('.code-header')?.querySelector('[data-code-copy-status]');
-    const originalLabel = codeButton.textContent;
     try {
       const binary = atob(codeButton.dataset.copyCode);
       const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
       await copyText(new TextDecoder().decode(bytes));
-      codeButton.textContent = 'コピー済み';
-      if (status) status.textContent = 'コードをコピーしました';
+      codeButton.setAttribute('aria-label', codeButton.dataset.copySuccess || 'Copied');
+      if (status) status.textContent = codeButton.dataset.copySuccess || 'Copied';
     } catch (error) {
       console.error('Code copy failed:', error);
-      codeButton.textContent = '失敗';
-      if (status) status.textContent = 'コードをコピーできませんでした';
+      codeButton.setAttribute('aria-label', codeButton.dataset.copyFailure || 'Copy failed');
+      if (status) status.textContent = codeButton.dataset.copyFailure || 'Copy failed';
     }
     window.setTimeout(() => {
-      codeButton.textContent = originalLabel;
+      codeButton.setAttribute('aria-label', codeButton.title);
       if (status) status.textContent = '';
     }, 1800);
     return;
@@ -68,15 +67,17 @@ document.addEventListener('click', async (event) => {
   };
 
   const copyOnly = button.hasAttribute('data-copy-link');
-  if (status) status.textContent = copyOnly ? 'リンクをコピーしています…' : '共有しています…';
+  if (status) status.textContent = copyOnly
+    ? (button.dataset.linkCopying || 'Copying link…')
+    : (button.dataset.shareLabel || 'Sharing…');
 
   if (copyOnly) {
     try {
       await copyText(data.url);
-      if (status) status.textContent = 'リンクをコピーしました';
+      if (status) status.textContent = button.dataset.linkCopied || 'Link copied';
     } catch (error) {
       console.error('Article link copy failed:', error);
-      if (status) status.textContent = 'コピーできませんでした';
+      if (status) status.textContent = button.dataset.copyFailed || 'Could not copy';
     }
     return;
   }
@@ -86,11 +87,11 @@ document.addEventListener('click', async (event) => {
   if (isMobileDevice() && navigator.share) {
     try {
       await navigator.share(data);
-      if (status) status.textContent = '共有しました';
+      if (status) status.textContent = button.dataset.shareSuccess || 'Shared';
       return;
     } catch (error) {
       if (error.name === 'AbortError') {
-        if (status) status.textContent = '共有をキャンセルしました';
+        if (status) status.textContent = button.dataset.shareCancelled || 'Sharing cancelled';
         return;
       }
       // Native sharing failed; try copying the URL instead.
@@ -99,9 +100,9 @@ document.addEventListener('click', async (event) => {
 
   try {
     await copyText(data.url);
-    if (status) status.textContent = 'URLをコピーしました';
+    if (status) status.textContent = button.dataset.urlCopied || 'URL copied';
   } catch (error) {
     console.error('Article sharing failed:', error);
-    if (status) status.textContent = 'コピーできませんでした。記事URLをアドレスバーからコピーしてください。';
+    if (status) status.textContent = button.dataset.copyFailed || 'Could not copy. Please copy the article URL from the address bar.';
   }
 });

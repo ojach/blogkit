@@ -121,6 +121,10 @@ a:hover {
   color: var(--muted);
 }
 
+.translation-link {
+  font-weight: 600;
+}
+
 .side-note {
   background: var(--soft);
   padding: 22px;

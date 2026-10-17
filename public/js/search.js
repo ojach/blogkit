@@ -7,10 +7,10 @@ if(input&&list){
   const showOriginal=()=>list.querySelectorAll('[data-card]').forEach(el=>el.hidden=false);
   const render=found=>{
     list.replaceChildren();
-    if(!found.length){addText(list,'li','該当する記事はありません','empty');return}
+    if(!found.length){addText(list,'li',input.dataset.noResults||'No matching articles.','empty');return}
     for(const a of found){
       const li=document.createElement('li');li.className='article-card';li.dataset.card='';
-      const meta=[a.published,a.category].filter(Boolean).join(' · ');addText(li,'div',meta,'article-meta');
+      const meta=[a.displayDate||a.published,a.category].filter(Boolean).join(' · ');addText(li,'div',meta,'article-meta');
       const heading=document.createElement('h2');const link=document.createElement('a');link.href=a.url;link.textContent=a.title;heading.append(link);li.append(heading);
       addText(li,'p',a.excerpt||a.description);list.append(li);
     }
