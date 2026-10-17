@@ -23,6 +23,28 @@ npm run build
 
 生成物は `dist/` です。`dist/index.html` を開くか、ローカルの静的サーバーで確認できます。
 
+## トップページの見た目を変える
+
+トップページのHTMLは `templates/index.html` にあります。レイアウトや見出しの構造など、HTMLの見た目を変えるときはこのファイルを編集してから `npm run build` してください。`dist/` のHTMLを直接編集しても、次のビルドで上書きされます。
+
+`{{introTitle}}` や `{{articleCards}}` のような `{{...}}` は、言語ごとの文言や記事一覧をビルド時に入れる場所です。これらの名前はそのまま残してください。トップページの文言自体は `scripts/locales.js` で日本語・英語それぞれ設定します。
+
+## 全ページ共通の追加コード
+
+`templates/custom-head.html` に `<head>` 用、`templates/custom-body-end.html` に `</body>` 直前へ入れるコードを書けます。GA4や1P1Aなど、全ページ共通で使うコードを貼り付けます。使わないファイルは初期状態のままで構いません。1P1Aのスクリプトは同梱していません。
+
+## 記事ごとのPWAアイコン
+
+`articles.json` の記事設定に `pwa_icon` を指定すると、その記事ページに `<meta name="ojapp:icon">` を出力します。1P1Aのスクリプトを共通コード欄に設定しておけば、記事ごとのアイコンとして使えます。画像は `public/images/` に置き、ファイル名だけを書きます。記事側に指定がない場合は、`site.json` の `pwa_icon`、次に共通アイコンの `icon` を使います。
+
+```json
+{
+  "my-article": {
+    "pwa_icon": "my-article-icon.webp"
+  }
+}
+```
+
 ## 記事を追加する
 
 1. `content/my-new-article.md` を作成します。
@@ -47,6 +69,55 @@ Markdownの最初のH1がタイトルになります。メタ情報がない場�
 ```
 
 指定できる項目はすべて任意です。明示した値をビルドが優先します。v1ではカテゴリー別一覧やタグ分類は行いません。
+
+### 日本語・英語の記事
+
+サイトの既定言語は `site.json` の `language` で指定します。個別記事には `articles.json` の `language` を `ja` または `en` で指定できます。英語記事では日付、ナビゲーション、目次、要約、作者欄、共有状態などのUIも英語になります。記事本文・タイトル・説明文はそれぞれの記事に書いた内容を使います。
+
+トップページと検索結果も記事の言語ごとに分かれます。既定言語の記事一覧は `/`、英語記事の一覧は `/en/` に生成されます（英語を既定言語にした場合は英語が `/`、日本語が `/ja/`）。ヘッダーの言語リンクからもう一方の一覧へ移動できます。検索対象も各言語の一覧に表示される記事だけです。
+
+日英記事を対応付ける場合は、お互いのファイル名（拡張子なし）を `translation` に指定します。記事上部に相手言語へのリンクが表示されます。古い記事のURLを維持したい場合は、`permalink` にこれまでのパスをそのまま指定してください。
+
+`language: "en"` を指定して `permalink` を省略すると、URLは `/en/ファイル名/` になります。旧記事のように `/en/pwa-icon-2/` を維持する場合は、例のように `permalink` を明示します。
+
+```json
+{
+  "pwa-icon-ja": {
+    "language": "ja",
+    "permalink": "pwa-icon",
+    "translation": "pwa-icon-en"
+  },
+  "pwa-icon-en": {
+    "language": "en",
+    "permalink": "en/pwa-icon-2",
+    "translation": "pwa-icon-ja"
+  }
+}
+```
+
+作者名・紹介文・プロフィールURLは `site.json` の `author_locales` で言語ごとに設定できます。作者カードと自動生成OGP画像に反映されます。省略した言語は従来の `author`、`author_description`、`author_url` にフォールバックします。
+
+```json
+{
+  "author": "おじゃち",
+  "author_description": "PWAやWeb制作について書いています。",
+  "author_url": "https://ojapp.app/",
+  "author_locales": {
+    "ja": {
+      "name": "おじゃち",
+      "description": "PWAやWeb制作について書いています。",
+      "url": "https://ojapp.app/"
+    },
+    "en": {
+      "name": "Ojachi",
+      "description": "Writing about PWAs and web development.",
+      "url": "https://ojapp.app/en/"
+    }
+  }
+}
+```
+
+コードブロックのコピー操作はアイコン表示です。スクリーンリーダー向けのラベルとコピー結果は記事の言語に合わせて切り替わります。
 
 ### 記事の要約
 
@@ -90,7 +161,7 @@ function greet(name) {
 - `author_image` に `public/` 内の画像パス（例: `/images/author.webp`）を指定すると、作者カードに丸いアイコンを表示します。未指定時は名前の先頭文字を表示します。
 - 画像は `public/images/` に置きます。作者画像はファイル名だけ（例: `author.webp`）で指定でき、GitHub Pagesのプロジェクト用パスもビルド時に補完します。
 - 共有ボタンはスマートフォンなどでは共有メニューを開き、対応しない環境では記事URLをコピーします。
-- おすすめ記事は新着順から最大3件を表示し、自分自身と「次に読む」記事は候補から除外します。紹介文は `excerpt` → `meta_description` → 本文冒頭の順で生成します。
+- おすすめ記事は同じ言語の記事から最大3件を表示し、自分自身と「次に読む」記事は候補から除外します。紹介文は `excerpt` → `meta_description` → 本文冒頭の順で生成します。
 
 ```json
 {
