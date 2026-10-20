@@ -78,11 +78,11 @@ async function renderCodeBlock({ text, lang, labels }) {
   }];
 
   try {
-    highlighted = await codeToHtml(String(text), { lang: highlighterLanguage, theme: 'vitesse-dark', transformers });
+    highlighted = await codeToHtml(String(text), { lang: highlighterLanguage, theme: 'dark-plus', transformers });
   } catch {
     // Unknown language names remain readable as plain text instead of failing the whole build.
     highlighterLanguage = 'text';
-    highlighted = await codeToHtml(String(text), { lang: highlighterLanguage, theme: 'vitesse-dark', transformers });
+    highlighted = await codeToHtml(String(text), { lang: highlighterLanguage, theme: 'dark-plus', transformers });
   }
 
   const copyData = Buffer.from(String(text), 'utf8').toString('base64');
