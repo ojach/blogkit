@@ -136,6 +136,38 @@ const absoluteUrl = (pathname) => new URL(withBase(basePath, pathname), siteUrl.
 const renderer = new marked.Renderer();
 renderer.image = ({ href, title, text }) => `<img src="${esc(imageUrl(basePath, href))}" alt="${esc(text)}"${title ? ` title="${esc(title)}"` : ''} loading="lazy">`;
 
+const adHtmlFor = (number) => {
+  const ad = site.ads?.[number] || (number === 1 ? site.ad : null);
+  const image = imageUrl(basePath, ad?.image);
+  let href = '';
+  try {
+    const candidate = new URL(String(ad?.url || ''));
+    if (candidate.protocol === 'https:' || candidate.protocol === 'http:') href = candidate.href;
+  } catch {
+    // Leave the marker empty when its ad URL is missing or invalid.
+  }
+  return image && href
+    ? `<a class="ad-banner" href="${esc(href)}" rel="sponsored noopener"><img src="${esc(image)}" alt="${esc(ad?.alt || '')}" loading="lazy"></a>`
+    : '';
+};
+marked.use({
+  extensions: [{
+    name: 'ojappAd',
+    level: 'block',
+    start(source) {
+      return /^\[\[ad(?:[1-6])?\]\]\s*$/m.exec(source)?.index;
+    },
+    tokenizer(source) {
+      const match = /^\[\[ad([1-6])?\]\](?:\r?\n|$)/.exec(source);
+      if (match) return { type: 'ojappAd', raw: match[0], number: match[1] || '1' };
+    },
+    renderer(token) {
+      const adHtml = adHtmlFor(token.number);
+      return adHtml ? `${adHtml}\n` : '';
+    },
+  }],
+});
+
 const pageDirectory = path.join(root, 'pages');
 await fs.mkdir(pageDirectory, { recursive: true });
 const pageFiles = (await fs.readdir(pageDirectory)).filter((file) => file.endsWith('.md'));
@@ -158,7 +190,18 @@ const footerHtmlFor = (language) => {
   const links = pages.filter((page) => page.language === language && page.showInFooter)
     .map((page) => `<a href="${esc(withBase(basePath, `/${page.permalink}/`))}">${esc(page.footerLabel)}</a>`).join('');
   const pageNav = links ? `<nav class="footer-pages" aria-label="${esc(labels.sitePages)}">${links}</nav>` : '';
-  return `<footer class="footer"><div class="footer-inner"><a class="footer-brand" href="${esc(withBase(basePath, language === localeKey(site.language || 'ja') ? '/' : `/${language}/`))}">${esc(site.title)}</a>${pageNav}<p class="footer-tagline">Built for the OJapp Blog Kit.</p></div></footer>`;
+  const aboutText = language === 'en'
+  ? 'OJapp Tips is a technical blog about Progressive Web Apps (PWAs) and web app development. It covers home screen installation, app-like launch experiences, iOS and Android behavior, web standards, implementation, and troubleshooting based on hands-on testing.'
+  : 'OJapp Tipsは、PWA（Progressive Web Apps）とWebアプリの設計・開発を扱う技術ブログです。ホーム画面への追加やアプリのような起動体験を中心に、iOS・Androidでの動作検証、Web標準の仕様、実装方法やトラブルの解決策を、実際に試した結果をもとに紹介しています。';
+  return `<footer class="footer"><div class="footer-inner">
+  <a class="footer-brand" href="${esc(withBase(basePath, language === localeKey(site.language || 'ja') ? '/' : `/${language}/`))}">${esc(site.title)}</a>
+  ${pageNav}
+  <details class="footer-about">
+    <summary>${language === 'en' ? 'About OJapp Tips' : 'OJapp Tipsについて'}</summary>
+    <p>${esc(aboutText)}</p>
+  </details>
+  <p class="footer-tagline">Built for the OJapp Blog Kit.</p>
+</div></footer>`;
 };
 
 const files = (await fs.readdir(path.join(root, 'content'))).filter((file) => file.endsWith('.md'));
@@ -254,7 +297,7 @@ for (const article of articles) {
     return `<h${depth} id="${id}">${rendered}</h${depth}>\n`;
   };
   const contentTokens = article.firstHeading ? article.tokens.slice(article.tokens.indexOf(article.firstHeading) + 1) : article.tokens;
-  const html = marked.parser(contentTokens, { renderer: articleRenderer });
+  const html = marked.parser(contentTokens, { renderer: articleRenderer, extensions: marked.defaults.extensions });
   const labels = article.labels;
   const tocHtml = toc.length ? `<details class="toc" open><summary>${esc(labels.toc)}</summary><ul>${toc.map((item) => `<li class="${item.level === 3 ? 'toc-h3' : ''}"><a href="#${esc(item.id)}">${esc(item.text)}</a></li>`).join('')}</ul></details>` : '';
   const canonical = absoluteUrl(`/${article.permalink}/`);
@@ -324,7 +367,7 @@ for (const page of pages) {
   const pageRenderer = new marked.Renderer();
   pageRenderer.image = renderer.image;
   const contentTokens = page.firstHeading ? page.tokens.slice(page.tokens.indexOf(page.firstHeading) + 1) : page.tokens;
-  const content = marked.parser(contentTokens, { renderer: pageRenderer });
+  const content = marked.parser(contentTokens, { renderer: pageRenderer, extensions: marked.defaults.extensions });
   const body = fillTemplate(pageTemplate, {
     pageTitle: esc(page.title),
     pageDescription: page.description ? `<p class="article-description">${esc(page.description)}</p>` : '',
