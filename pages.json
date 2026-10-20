@@ -18,5 +18,12 @@
     "permalink": "download",
     "language": "ja",
     "show_in_footer": true
-  }
+  },
+   "guide": {
+    "title": "Blog Kit ガイド｜自分に合ったブログの運営方法",
+    "description": "スマホならGitHub、PCならVS Code、GitHubを使わないならCloudflare Pagesへ直接アップロード。OJapp Blog Kitの準備・執筆・公開方法を解説します。",
+    "permalink": "guide",
+    "language": "ja",
+    "show_in_footer": true
+   }
 }
