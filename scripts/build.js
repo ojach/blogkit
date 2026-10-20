@@ -30,6 +30,20 @@ function parseCodeInfo(info) {
   };
 }
 
+function decodeHtmlCode(value) {
+  const namedEntities = {
+    amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0',
+  };
+  return String(value).replace(/&(#(?:x[\da-f]+|\d+)|[a-z]+);/gi, (match, entity) => {
+    if (entity[0] !== '#') return namedEntities[entity.toLowerCase()] ?? match;
+    const hex = entity[1]?.toLowerCase() === 'x';
+    const codePoint = Number.parseInt(entity.slice(hex ? 2 : 1), hex ? 16 : 10);
+    return Number.isInteger(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff
+      ? String.fromCodePoint(codePoint)
+      : match;
+  });
+}
+
 function greatestCommonDivisor(a, b) {
   return b ? greatestCommonDivisor(b, a % b) : a;
 }
@@ -77,7 +91,7 @@ async function renderCodeBlock({ text, lang, labels }) {
 
 function collectCodeTokens(tokens, result = []) {
   for (const token of tokens || []) {
-    if (token.type === 'code') result.push(token);
+    if (token.type === 'code' || token.type === 'ojappHtmlCode') result.push(token);
     if (token.tokens) collectCodeTokens(token.tokens, result);
     if (token.items) {
       for (const item of token.items) collectCodeTokens(item.tokens, result);
@@ -150,6 +164,8 @@ const adHtmlFor = (number) => {
     ? `<a class="ad-banner" href="${esc(href)}" rel="sponsored noopener"><img src="${esc(image)}" alt="${esc(ad?.alt || '')}" loading="lazy"></a>`
     : '';
 };
+const codeBlockHtml = new Map();
+let activeCodeLanguage = localeKey(site.language || 'ja');
 marked.use({
   extensions: [{
     name: 'ojappAd',
@@ -164,6 +180,31 @@ marked.use({
     renderer(token) {
       const adHtml = adHtmlFor(token.number);
       return adHtml ? `${adHtml}\n` : '';
+    },
+  }, {
+    name: 'ojappHtmlCode',
+    level: 'block',
+    start(source) {
+      return /<pre\b/i.exec(source)?.index;
+    },
+    tokenizer(source) {
+      const match = source.match(/^<pre\b[^>]*>\s*<code\b([^>]*)>([\s\S]*?)<\/code>\s*<\/pre>(?:\r?\n|$)/i);
+      if (!match) return;
+      const classValue = match[1].match(/\bclass\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+      const classes = classValue?.slice(1).find(Boolean) || '';
+      const language = classes.match(/(?:^|\s)language-([\w.+-]+)/i)?.[1];
+      if (!language) return;
+      return {
+        type: 'ojappHtmlCode',
+        raw: match[0],
+        text: decodeHtmlCode(match[2]),
+        lang: language,
+      };
+    },
+    renderer(token) {
+      const key = JSON.stringify([activeCodeLanguage, token.text, token.lang || '']);
+      return codeBlockHtml.get(key)
+        || `<pre><code>${codeEscape(token.text)}</code></pre>\n`;
     },
   }],
 });
@@ -229,13 +270,12 @@ for (const item of [...articles, ...pages]) {
   permalinkOwners.set(item.permalink, item.key);
 }
 
-const codeBlockHtml = new Map();
-for (const article of articles) {
-  article.language = localeKey(article.metaLanguage || site.language || 'ja');
-  article.labels = localeText(article.language);
-  for (const token of collectCodeTokens(article.tokens)) {
-    const key = JSON.stringify([article.language, token.text, token.lang || '']);
-    if (!codeBlockHtml.has(key)) codeBlockHtml.set(key, await renderCodeBlock({ ...token, labels: article.labels }));
+for (const item of [...articles, ...pages]) {
+  item.language = item.language || localeKey(item.metaLanguage || site.language || 'ja');
+  item.labels = localeText(item.language);
+  for (const token of collectCodeTokens(item.tokens)) {
+    const key = JSON.stringify([item.language, token.text, token.lang || '']);
+    if (!codeBlockHtml.has(key)) codeBlockHtml.set(key, await renderCodeBlock({ ...token, labels: item.labels }));
   }
 }
 
@@ -281,6 +321,7 @@ for (const language of languages) {
 const sitemap = [];
 const rss = [];
 for (const article of articles) {
+  activeCodeLanguage = article.language;
   const toc = [];
   const usedIds = new Map();
   const articleRenderer = new marked.Renderer();
@@ -322,7 +363,7 @@ for (const article of articles) {
     ? `<p class="article-summary-next"><span>${esc(labels.next)}</span><a href="${esc(withBase(basePath, `/${nextArticle.permalink}/`))}">${esc(nextArticle.title)}</a></p>`
     : '';
   const summaryHtml = site.features?.article_summary !== false && article.summary
-    ? `<details class="article-summary" open><summary>${esc(labels.summary)}</summary><div class="article-summary-content">${marked.parse(article.summary)}${summaryNextHtml}</div></details>`
+    ? `<details class="article-summary"><summary>${esc(labels.summary)}</summary><div class="article-summary-content">${marked.parse(article.summary)}${summaryNextHtml}</div></details>`
     : '';
   const recommendations = articles.filter((candidate) => candidate.language === article.language && candidate !== article && candidate !== nextArticle).slice(0, 3);
   const nextSection = nextArticle
@@ -364,6 +405,7 @@ for (const article of articles) {
 }
 
 for (const page of pages) {
+  activeCodeLanguage = page.language;
   const pageRenderer = new marked.Renderer();
   pageRenderer.image = renderer.image;
   const contentTokens = page.firstHeading ? page.tokens.slice(page.tokens.indexOf(page.firstHeading) + 1) : page.tokens;
