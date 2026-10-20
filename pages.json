@@ -6,9 +6,9 @@
     "footer_label": "このブログについて"
   },
   "blogkit": {
-    "title": "OJapp Blog Kit",
+    "title": "OJapp Blog Kit公式",
     "description": "ブログを書く場所を、自分のものにする。MarkdownとJSONで作る、自分のドメインのブログ。",
-    "permalink": "Blogkit公式サイト",
+    "permalink": "blogkit",
     "language": "ja",
     "show_in_footer": true
   },
