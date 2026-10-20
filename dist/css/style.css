@@ -1,7 +1,7 @@
 :root {
   color-scheme: light;
   --ink: #17212b;
-  --muted: #64748b;
+  --muted: #475569;
   --line: #e5eaf0;
   --brand: #187a68;
   --paper: #fff;
@@ -12,12 +12,17 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%; 
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
-  line-height: 1.75;
+  line-height: 1.5;
 }
 
 a {
@@ -79,7 +84,7 @@ a:hover {
 }
 
 .intro h1 {
-  font-size: 2rem;
+  font-size: 1.8rem;
   line-height: 1.3;
   letter-spacing: -.04em;
   margin: 0 0 8px;
@@ -143,14 +148,14 @@ a:hover {
 }
 
 .article h1 {
-  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
   line-height: 1.3;
   letter-spacing: -.045em;
   margin: 8px 0 16px;
 }
 
 .article-description {
-  font-size: 1.08rem;
+  font-size: 1rem;
   color: var(--muted);
 }
 
@@ -166,8 +171,8 @@ a:hover {
 }
 
 .prose {
-  font-size: 1.04rem;
-  line-height: 1.95;
+  font-size: 0.95rem;
+  line-height: 1.5;
   overflow-wrap: anywhere;
 }
 
@@ -200,7 +205,19 @@ a:hover {
 .prose img {
   max-width: 100%;
   height: auto;
-  border-radius: 10px;
+  border-radius: 4px;
+}
+
+.prose .ad-banner {
+  display: block;
+  margin: 1.5em 0;
+}
+
+.prose .ad-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
 }
 
 .prose code {
@@ -253,8 +270,16 @@ a:hover {
 .toc {
   background: var(--soft);
   border-radius: 12px;
-  padding: 18px 24px;
+  padding: 14px 20px;
   margin: 0 0 34px;
+}
+
+.toc a {
+  font-size: 0.85em;
+}
+
+.toc summary {
+  font-size: 0.9em;
 }
 
 .article-summary {
@@ -423,11 +448,11 @@ a:hover {
   }
 
   .prose {
-    font-size: 1rem;
+    font-size: 0.96rem;
   }
 
   .article h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 }
 
