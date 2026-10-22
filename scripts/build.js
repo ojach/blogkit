@@ -400,7 +400,7 @@ if (site.features?.article_pwa_icons === true && !article.pwaIcon) {
   || (site.features?.article_pwa_icons === true
     ? generatedPwaIcon
     : site.pwa_icon || site.icon || '');
-  const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra, ogImage, pwaIcon: article.pwaIcon || site.pwa_icon || site.icon || '', customHeadHtml, customBodyHtml, footerHtml: footerHtmlFor(article.language), brandColor, lang: article.language, labels, homePath: articleHomePath, languageHomeUrl: articleLanguageHomeUrl });
+  const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra, ogImage, pwaIcon, customHeadHtml, customBodyHtml, footerHtml: footerHtmlFor(article.language), brandColor, lang: article.language, labels, homePath: articleHomePath, languageHomeUrl: articleLanguageHomeUrl });
   const destination = path.join(out, article.permalink, 'index.html');
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await fs.writeFile(destination, htmlPage);
