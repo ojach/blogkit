@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
 import { codeToHtml } from 'shiki';
-import { generateOgp } from './ogp.js';
+import { generateOgp, generatePwaIcon } from './ogp.js';
 import { formatDate, htmlLanguage, localeKey, localeText } from './locales.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -339,6 +339,17 @@ for (const article of articles) {
   const ogpPath = path.join(out, 'ogp', ogpFilename);
   const localizedSite = { ...site, author: authorName };
   await generateOgp({ root, destination: ogpPath, title: article.title, site: localizedSite, brandColor });
+  const generatedPwaIcon = `pwa-icons/${slug(article.key)}.png`;
+
+if (site.features?.article_pwa_icons === true && !article.pwaIcon) {
+  await generatePwaIcon({
+    root,
+    destination: path.join(out, 'images', generatedPwaIcon),
+    title: article.title,
+    site,
+    brandColor,
+  });
+}
   const ogImage = absoluteUrl(`/ogp/${ogpFilename}`);
   const articleIndex = articles.indexOf(article);
   const explicitNext = article.nextArticleKey
@@ -385,6 +396,10 @@ for (const article of articles) {
     ? `<link rel="alternate" hreflang="${esc(htmlLanguage(article.language))}" href="${esc(canonical)}"><link rel="alternate" hreflang="${esc(htmlLanguage(translation.language))}" href="${esc(absoluteUrl(`/${translation.permalink}/`))}"><link rel="alternate" hreflang="x-default" href="${esc(absoluteUrl(`/${defaultLanguageArticle.permalink}/`))}">`
     : '';
   const extra = `${alternateLanguages}<script type="application/ld+json">${JSON.stringify(jsonld)}</script>`;
+  const pwaIcon = article.pwaIcon
+  || (site.features?.article_pwa_icons === true
+    ? generatedPwaIcon
+    : site.pwa_icon || site.icon || '');
   const htmlPage = shell({ title: `${article.title} | ${site.title}`, description: article.description, canonical, site, basePath, body: articleBody, extra, ogImage, pwaIcon: article.pwaIcon || site.pwa_icon || site.icon || '', customHeadHtml, customBodyHtml, footerHtml: footerHtmlFor(article.language), brandColor, lang: article.language, labels, homePath: articleHomePath, languageHomeUrl: articleLanguageHomeUrl });
   const destination = path.join(out, article.permalink, 'index.html');
   await fs.mkdir(path.dirname(destination), { recursive: true });
