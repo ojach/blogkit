@@ -134,4 +134,4 @@ export async function generatePwaIcon({ root, destination, title, site, brandCol
   </svg>`;
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await sharp(Buffer.from(svg)).png().toFile(destination);
-}np
+}
