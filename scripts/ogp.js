@@ -105,3 +105,33 @@ export async function generateOgp({ root, destination, title, site, brandColor }
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await sharp(Buffer.from(svg)).png().toFile(destination);
 }
+
+export async function generatePwaIcon({ root, destination, title, site, brandColor }) {
+  const accent = safeColor(brandColor);
+  const frame = tint(accent, 0.78);
+  const siteIcon = await embeddedImage(root, site.icon);
+  const fullTitle = [...String(title ?? '')];
+  const displayTitle = fullTitle.length > 26 ? `${fullTitle.slice(0, 25).join('')}…` : String(title ?? '');
+  const lines = splitTitle(displayTitle, 9).slice(0, 3);
+  const fontSize = lines.length >= 3 ? 35 : fullTitle.length > 14 ? 39 : 46;
+  const lineHeight = Math.round(fontSize * 1.3);
+  const titleStartY = Math.round(259 - ((lines.length - 1) * lineHeight) / 2 + fontSize * 0.34);
+  const titleMarkup = lines.map((line, index) => `<text x="66" y="${titleStartY + index * lineHeight}" font-family="'Noto Sans CJK JP'" font-size="${fontSize}" font-weight="700" letter-spacing="-1.2" fill="#17212b">${escapeXml(line)}</text>`).join('');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" viewBox="0 0 512 512">
+    <defs>
+      <clipPath id="iconCard"><rect x="18" y="18" width="476" height="476" rx="62"/></clipPath>
+    </defs>
+    <rect width="512" height="512" fill="${frame}"/>
+    <rect x="18" y="18" width="476" height="476" rx="62" fill="#fff"/>
+    <g clip-path="url(#iconCard)">
+      <circle cx="490" cy="26" r="142" fill="${tint(accent, 0.91)}" opacity=".78"/>
+      <circle cx="442" cy="102" r="91" fill="${tint(accent, 0.96)}" opacity=".9"/>
+      <circle cx="500" cy="178" r="105" fill="none" stroke="${accent}" stroke-width="3" opacity=".52"/>
+    </g>
+    ${titleMarkup}
+    <rect x="66" y="365" width="88" height="7" rx="3.5" fill="${accent}"/>
+    ${iconMarkup(siteIcon, 382, 382, 72, 'pwaSiteIcon', site.title || 'B', accent)}
+  </svg>`;
+  await fs.mkdir(path.dirname(destination), { recursive: true });
+  await sharp(Buffer.from(svg)).png().toFile(destination);
+}
