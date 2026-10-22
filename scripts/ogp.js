@@ -25,7 +25,7 @@ function tint(hex, amount = 0.9) {
 
 function splitTitle(value, maxCharacters) {
   const text = String(value ?? '');
-  if (/^[\x00-\x7f\s]+$/.test(text) && /\s/.test(text)) {
+  if (/^[\x00-\x7f\s…]+$/.test(text) && /\s/.test(text)) {
     const lines = [];
     let line = '';
     for (const word of text.split(/\s+/)) {
@@ -112,11 +112,14 @@ export async function generatePwaIcon({ root, destination, title, site, brandCol
   const siteIcon = await embeddedImage(root, site.icon);
   const fullTitle = [...String(title ?? '')];
   const displayTitle = fullTitle.length > 26 ? `${fullTitle.slice(0, 25).join('')}…` : String(title ?? '');
-  const lines = splitTitle(displayTitle, 9).slice(0, 3);
-  const fontSize = lines.length >= 3 ? 35 : fullTitle.length > 14 ? 39 : 46;
-  const lineHeight = Math.round(fontSize * 1.3);
-  const titleStartY = Math.round(259 - ((lines.length - 1) * lineHeight) / 2 + fontSize * 0.34);
-  const titleMarkup = lines.map((line, index) => `<text x="66" y="${titleStartY + index * lineHeight}" font-family="'Noto Sans CJK JP'" font-size="${fontSize}" font-weight="700" letter-spacing="-1.2" fill="#17212b">${escapeXml(line)}</text>`).join('');
+  const isAsciiTitle = /^[\x00-\x7f\s…]+$/.test(displayTitle);
+  const lines = splitTitle(displayTitle, isAsciiTitle ? 8 : 6).slice(0, 3);
+  const fontSize = isAsciiTitle
+    ? (lines.length >= 3 ? 56 : 62)
+    : (lines.length >= 3 ? 64 : 70);
+  const lineHeight = Math.round(fontSize * 1.18);
+  const titleStartY = Math.round(252 - ((lines.length - 1) * lineHeight) / 2 + fontSize * 0.34);
+  const titleMarkup = lines.map((line, index) => `<text x="58" y="${titleStartY + index * lineHeight}" font-family="'Noto Sans CJK JP'" font-size="${fontSize}" font-weight="700" letter-spacing="-1.2" fill="#17212b">${escapeXml(line)}</text>`).join('');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" viewBox="0 0 512 512">
     <defs>
       <clipPath id="iconCard"><rect x="18" y="18" width="476" height="476" rx="62"/></clipPath>
@@ -129,8 +132,8 @@ export async function generatePwaIcon({ root, destination, title, site, brandCol
       <circle cx="500" cy="178" r="105" fill="none" stroke="${accent}" stroke-width="3" opacity=".52"/>
     </g>
     ${titleMarkup}
-    <rect x="66" y="365" width="88" height="7" rx="3.5" fill="${accent}"/>
-    ${iconMarkup(siteIcon, 382, 382, 72, 'pwaSiteIcon', site.title || 'B', accent)}
+    <rect x="58" y="390" width="96" height="8" rx="4" fill="${accent}"/>
+    ${iconMarkup(siteIcon, 362, 362, 112, 'pwaSiteIcon', site.title || 'B', accent)}
   </svg>`;
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await sharp(Buffer.from(svg)).png().toFile(destination);
