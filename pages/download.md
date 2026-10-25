@@ -6,7 +6,7 @@
       <p class="bkdl-lead">Blog Kitをダウンロードして、Markdownで記事を書く。<br>ビルドしたファイルを公開するだけで、自分のブログが完成します。</p>
       <div class="bkdl-actions">
         <!-- ZIP公開後、下の案内を<a class="bkdl-btn bkdl-btn-primary" href="/downloads/blogkit.zip" download>ZIPをダウンロード ↓</a>に変更 -->
-        <span class="bkdl-btn bkdl-btn-muted" aria-disabled="true">ZIP配布リンクは準備中</span>
+        <span class="bkdl-btn bkdl-btn-muted" href="https://ojapp.app/files/ojapp-blogkit.zip" aria-disabled="true">ojapp-blogkit.zip</span>
         <a class="bkdl-btn bkdl-btn-outline" href="https://github.com/ojach/blogkit-template" target="_blank" rel="noopener noreferrer">GitHubテンプレート ↗</a>
       </div>
       <p class="bkdl-hero-note">必要なもの：Node.js / テキストエディター / 公開先（Cloudflare Pagesなど）</p>
