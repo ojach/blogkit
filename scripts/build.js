@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
+import sharp from 'sharp';
 import { codeToHtml } from 'shiki';
 import { generateOgp, generatePwaIcon } from './ogp.js';
 import { formatDate, htmlLanguage, localeKey, localeText } from './locales.js';
@@ -119,6 +120,57 @@ function imageUrl(basePath, value) {
   return withBase(basePath, imagePath);
 }
 
+const webpImages = new Map();
+const rasterExtensions = new Set(['.jpg', '.jpeg', '.png']);
+
+async function generateWebpImages() {
+  const sourceRoot = path.join(root, 'public/images');
+  const visit = async (directory) => {
+    let entries;
+    try {
+      entries = await fs.readdir(directory, { withFileTypes: true });
+    } catch (error) {
+      if (error.code === 'ENOENT') return;
+      throw error;
+    }
+    for (const entry of entries) {
+      const source = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await visit(source);
+        continue;
+      }
+      const extension = path.extname(entry.name).toLowerCase();
+      if (!entry.isFile() || !rasterExtensions.has(extension)) continue;
+      const relative = path.relative(sourceRoot, source);
+      const webpRelative = path.join(path.dirname(relative), `${path.basename(relative, extension)}.webp`);
+      const destination = path.join(out, 'images', 'webp', webpRelative);
+      try {
+        await fs.mkdir(path.dirname(destination), { recursive: true });
+        await sharp(source).rotate().webp({ quality: 82, effort: 4 }).toFile(destination);
+        webpImages.set(relative.split(path.sep).join('/'), `/images/webp/${webpRelative.split(path.sep).join('/')}`);
+      } catch (error) {
+        console.warn(`WebP conversion skipped for ${relative}: ${error.message}`);
+      }
+    }
+  };
+  await visit(sourceRoot);
+}
+
+function optimizedImageUrl(basePath, value, preserveOriginal = false) {
+  const image = String(value ?? '').trim();
+  if (!image || preserveOriginal || /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(image)) return imageUrl(basePath, image);
+  const suffixIndex = image.search(/[?#]/);
+  const imagePath = suffixIndex < 0 ? image : image.slice(0, suffixIndex);
+  const suffix = suffixIndex < 0 ? '' : image.slice(suffixIndex);
+  const normalized = imagePath.startsWith('/') ? imagePath : `/images/${imagePath.replace(/^images\//, '')}`;
+  if (!normalized.startsWith('/images/')) return imageUrl(basePath, image);
+  const relative = normalized.slice('/images/'.length).split('/').join(path.sep);
+  const extension = path.extname(relative).toLowerCase();
+  if (!rasterExtensions.has(extension)) return imageUrl(basePath, image);
+  const webp = webpImages.get(relative.split(path.sep).join('/'));
+  return webp ? `${withBase(basePath, webp)}${suffix}` : imageUrl(basePath, image);
+}
+
 function shell({ title, description, canonical, site, basePath, body, extra = '', ogImage = '', pwaIcon = '', customHeadHtml = '', customBodyHtml = '', footerHtml = '', lang = 'ja', brandColor = '#187a68', labels = localeText(lang), homePath = '/', languageHomeUrl = '' }) {
   const homeUrl = withBase(basePath, homePath);
   const cssUrl = withBase(basePath, '/css/style.css');
@@ -147,8 +199,13 @@ const siteUrl = new URL(site.url);
 const basePath = siteUrl.pathname.replace(/\/$/, '');
 const brandColor = /^#[\da-f]{3}(?:[\da-f]{3})?$/i.test(String(site.brand_color || '')) ? site.brand_color : '#187a68';
 const absoluteUrl = (pathname) => new URL(withBase(basePath, pathname), siteUrl.origin).href;
+await generateWebpImages();
 const renderer = new marked.Renderer();
-renderer.image = ({ href, title, text }) => `<img src="${esc(imageUrl(basePath, href))}" alt="${esc(text)}"${title ? ` title="${esc(title)}"` : ''} loading="lazy">`;
+renderer.image = ({ href, title, text }) => {
+  const preserveOriginal = title?.trim().toLowerCase() === 'blogkit:original';
+  const imageTitle = preserveOriginal ? '' : title;
+  return `<img src="${esc(optimizedImageUrl(basePath, href, preserveOriginal))}" alt="${esc(text)}"${imageTitle ? ` title="${esc(imageTitle)}"` : ''} loading="lazy">`;
+};
 
 const adHtmlFor = (number) => {
   const ad = site.ads?.[number] || (number === 1 ? site.ad : null);
@@ -280,6 +337,7 @@ const makeSearchIndex = (languageArticles) => languageArticles.map((article) => 
 const defaultLanguage = localeKey(site.language || 'ja');
 const defaultLabels = localeText(defaultLanguage);
 const languages = [...new Set(articles.map((article) => article.language))];
+const articlesPerPage = 15;
 const languageHomePath = (language) => language === defaultLanguage ? '/' : `/${language}/`;
 for (const language of languages) {
   const languageArticles = articles.filter((article) => article.language === language);
@@ -287,10 +345,16 @@ for (const language of languages) {
   const route = languageHomePath(language);
   const searchFilename = language === defaultLanguage ? 'search-index.json' : `search-index.${language}.json`;
   const searchIndexUrl = withBase(basePath, `/${searchFilename}`);
-  const cards = languageArticles.map((article) => `<li class="article-card" data-card><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(formatDate(article.published, article.language))}</time>` : `<span>${esc(labels.noDate)}</span>`}${article.category ? ` · ${esc(article.category)}` : ''}</div><h2><a href="${esc(withBase(basePath, `/${article.permalink}/`))}">${esc(article.title)}</a></h2><p>${esc(article.excerpt)}</p></li>`).join('');
+  const pageCount = Math.max(1, Math.ceil(languageArticles.length / articlesPerPage));
+  const cardsFor = (page) => languageArticles.slice((page - 1) * articlesPerPage, page * articlesPerPage).map((article) => `<li class="article-card" data-card><div class="article-meta">${article.published ? `<time datetime="${esc(article.published)}">${esc(formatDate(article.published, article.language))}</time>` : `<span>${esc(labels.noDate)}</span>`}${article.category ? ` · ${esc(article.category)}` : ''}</div><h2><a href="${esc(withBase(basePath, `/${article.permalink}/`))}">${esc(article.title)}</a></h2><p>${esc(article.excerpt)}</p></li>`).join('');
   const languageHomeUrl = languages.length > 1
     ? withBase(basePath, languageHomePath(language === 'en' ? 'ja' : 'en'))
     : '';
+  for (let page = 1; page <= pageCount; page += 1) {
+  const pageRoute = page === 1 ? route : `${route.replace(/\/$/, '')}/page/${page}/`;
+  const previous = page > 1 ? `<a href="${esc(withBase(basePath, page === 2 ? route : `${route.replace(/\/$/, '')}/page/${page - 1}/`))}">← 前の15件</a>` : '';
+  const next = page < pageCount ? `<a href="${esc(withBase(basePath, `${route.replace(/\/$/, '')}/page/${page + 1}/`))}">次の15件 →</a>` : '';
+  const pagination = pageCount > 1 ? `<nav class="pagination" aria-label="記事一覧ページ">${previous}<span>${page} / ${pageCount}</span>${next}</nav>` : '';
   const home = fillTemplate(homeTemplate, {
     introTitle: esc(labels.introTitle),
     introDescription: esc(labels.introDescription),
@@ -298,13 +362,15 @@ for (const language of languages) {
     searchPlaceholder: esc(labels.searchPlaceholder),
     noResults: esc(language === 'en' ? 'No matching articles.' : '該当する記事はありません'),
     searchIndexUrl: esc(searchIndexUrl),
-    articleCards: cards || `<li class="empty">${esc(labels.noArticles)}</li>`,
+    articleCards: cardsFor(page) || `<li class="empty">${esc(labels.noArticles)}</li>`,
+    pagination,
     sideDescription: esc(labels.sideDescription),
     searchScriptUrl: esc(withBase(basePath, '/js/search.js')),
   });
-  const destination = path.join(out, route.replace(/^\/+|\/+$/g, ''), 'index.html');
+  const destination = path.join(out, pageRoute.replace(/^\/+|\/+$/g, ''), 'index.html');
   await fs.mkdir(path.dirname(destination), { recursive: true });
-  await fs.writeFile(destination, shell({ title: site.title, description: site.description, canonical: absoluteUrl(route), site, basePath, body: home, pwaIcon: site.pwa_icon || site.icon || '', customHeadHtml, customBodyHtml, footerHtml: footerHtmlFor(language), brandColor, lang: language, labels, homePath: route, languageHomeUrl }));
+  await fs.writeFile(destination, shell({ title: site.title, description: site.description, canonical: absoluteUrl(pageRoute), site, basePath, body: home, pwaIcon: site.pwa_icon || site.icon || '', customHeadHtml, customBodyHtml, footerHtml: footerHtmlFor(language), brandColor, lang: language, labels, homePath: route, languageHomeUrl }));
+  }
   await fs.writeFile(path.join(out, searchFilename), JSON.stringify(makeSearchIndex(languageArticles), null, 2));
 }
 const sitemap = [];
@@ -373,7 +439,7 @@ if (site.features?.article_pwa_icons === true && !article.pwaIcon) {
     ? `<img src="${esc(imageUrl(basePath, site.author_image))}" alt="" loading="lazy">`
     : `<span aria-hidden="true">${esc([...String(authorName)][0])}</span>`;
   const authorSection = `<section class="author-card" aria-label="${esc(labels.author)}"><div class="author-avatar">${authorImage}</div><div class="author-copy"><div class="section-label">${esc(labels.author)}</div><strong>${esc(authorName)}</strong>${authorDescription ? `<p>${esc(authorDescription)}</p>` : ''}${authorUrl ? `<a class="author-link" href="${esc(authorUrl)}" rel="author">${esc(labels.profile)}</a>` : ''}</div></section>`;
-  const thumbnailImageUrl = imageUrl(basePath, article.thumbnail);
+  const thumbnailImageUrl = optimizedImageUrl(basePath, article.thumbnail);
   const thumbnail = thumbnailImageUrl && article.showThumbnail
     ? `<figure class="article-thumbnail"><img src="${esc(thumbnailImageUrl)}" alt="${esc(article.thumbnailAlt)}" fetchpriority="high"></figure>`
     : '';
