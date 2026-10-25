@@ -30,6 +30,6 @@
   "title": "WordPress Migrator | OJapp Blog Kit",
   "description": "WordPressのXMLをブラウザ内でBlog Kit形式へ変換します。",
   "permalink": "migrator",
-  "show_in_footer": false
+  "show_in_footer": true
 }
 }
