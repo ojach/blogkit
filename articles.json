@@ -37,6 +37,8 @@
     "next_article": "welcome"
   },
   "readme": {
+    "excerpt": "使い方や設定方法、設定項目を網羅したOJappBlogKitの説明書",
+    "category": "README",
     "published": "2026-10-13",
     "next_article": "guide"
   }
