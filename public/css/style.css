@@ -489,7 +489,8 @@ a:hover {
   }
 }
 
-.related-section-title {
+.next-read h2.related-section-title,
+.recommendations h2.related-section-title {
   margin: 0 0 12px;
   color: var(--ink);
   font-size: 1rem;
