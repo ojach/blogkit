@@ -295,7 +295,16 @@ const files = (await fs.readdir(path.join(root, 'content'))).filter((file) => fi
 const articles = [];
 for (const file of files) {
   const key = path.basename(file, '.md');
-  const raw = await fs.readFile(path.join(root, 'content', file), 'utf8');
+  const source = await fs.readFile(path.join(root, 'content', file), 'utf8');
+  const frontMatterMatch = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+  const frontMatter = {};
+  if (frontMatterMatch) {
+    for (const line of frontMatterMatch[1].split(/\r?\n/)) {
+      const match = line.match(/^([\w-]+):\s*(.*?)\s*$/);
+      if (match) frontMatter[match[1]] = match[2].replace(/^(?:"([\s\S]*)"|'([\s\S]*)')$/, (_, doubleQuoted, singleQuoted) => doubleQuoted ?? singleQuoted);
+    }
+  }
+  const raw = frontMatterMatch ? source.slice(frontMatterMatch[0].length) : source;
   const tokens = marked.lexer(raw);
   const firstHeading = tokens.find((token) => token.type === 'heading' && token.depth === 1);
   const headingText = (token) => token.tokens?.map((part) => part.text || part.raw || '').join('') || token.text || '';
@@ -304,7 +313,7 @@ for (const file of files) {
   const description = meta.meta_description || meta.excerpt || raw.replace(/^#+ .*$/gm, '').replace(/[`*_>#\[\]()-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160) || title;
   const defaultPermalink = meta.language && localeKey(meta.language) === 'en' ? `en/${key}` : key;
   const permalink = (meta.permalink || defaultPermalink).replace(/^\/+|\/+$/g, '');
-  articles.push({ key, title, description, excerpt: meta.excerpt || description, summary: meta.summary || '', permalink, published: meta.published || '', category: meta.category || '', nextArticleKey: meta.next_article || '', translationKey: meta.translation || '', metaLanguage: meta.language || '', pwaIcon: meta.pwa_icon || '', thumbnail: meta.thumbnail || '', thumbnailAlt: meta.thumbnail_alt || title, showThumbnail: meta.show_thumbnail !== false, tokens, firstHeading });
+  articles.push({ key, title, description, excerpt: meta.excerpt || description, summary: meta.summary || '', permalink, published: frontMatter.published || meta.published || '', updated: frontMatter.updated || meta.updated || '', category: frontMatter.category || meta.category || '', nextArticleKey: meta.next_article || '', translationKey: meta.translation || '', metaLanguage: frontMatter.language || meta.language || '', pwaIcon: meta.pwa_icon || '', thumbnail: meta.thumbnail || '', thumbnailAlt: meta.thumbnail_alt || title, showThumbnail: meta.show_thumbnail !== false, tokens, firstHeading });
 }
 articles.sort((a, b) => (b.published || '').localeCompare(a.published || '') || a.title.localeCompare(b.title));
 
@@ -449,7 +458,7 @@ if (site.features?.article_pwa_icons === true && !article.pwaIcon) {
     : '';
   const translation = article.translationKey ? articles.find((candidate) => candidate.key === article.translationKey || candidate.permalink === article.translationKey) : null;
   const translationHtml = translation ? `<a class="translation-link" href="${esc(withBase(basePath, `/${translation.permalink}/`))}" lang="${esc(htmlLanguage(translation.language))}">${esc(labels.languageName)}</a>` : '';
-  const jsonld = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: article.title, description: article.description, datePublished: article.published || undefined, inLanguage: htmlLanguage(article.language), author: { '@type': 'Person', name: authorName }, mainEntityOfPage: canonical, url: canonical, publisher: { '@type': 'Organization', name: site.title } };
+  const jsonld = { '@context': 'https://schema.org', '@type': 'BlogPosting', headline: article.title, description: article.description, datePublished: article.published || undefined, dateModified: article.updated || article.published || undefined, inLanguage: htmlLanguage(article.language), author: { '@type': 'Person', name: authorName }, mainEntityOfPage: canonical, url: canonical, publisher: { '@type': 'Organization', name: site.title } };
   // Inline the small share handler so it still works when a static host's
   // fallback/rewrite rules return HTML for /js/share.js instead of the asset.
   const articleHomePath = languageHomePath(article.language);
@@ -470,7 +479,8 @@ if (site.features?.article_pwa_icons === true && !article.pwaIcon) {
   const destination = path.join(out, article.permalink, 'index.html');
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await fs.writeFile(destination, htmlPage);
-  sitemap.push(`<url><loc>${esc(canonical)}</loc>${article.published ? `<lastmod>${esc(article.published)}</lastmod>` : ''}</url>`);
+  const lastModified = article.updated || article.published;
+  sitemap.push(`<url><loc>${esc(canonical)}</loc>${lastModified ? `<lastmod>${esc(lastModified)}</lastmod>` : ''}</url>`);
   rss.push(`<item><title>${esc(article.title)}</title><link>${esc(canonical)}</link><guid>${esc(canonical)}</guid>${article.published ? `<pubDate>${new Date(`${article.published}T00:00:00Z`).toUTCString()}</pubDate>` : ''}<description>${esc(article.description)}</description></item>`);
 }
 
