@@ -10,12 +10,12 @@
   },
   {
     "title": "OJapp Blog Kit Readme",
-    "description": "Markdownで記事を書き、静的サイトとして公開できる軽量ブログキットです。WordPressなどからの移行にも、新しくブログを始める場合にも使えます。記事データはMarkdownとJSONで管理し、ビルドするとHTML、検索インデックス、RSS、サイトマップなどを生成します。 Markdown記事から静的HTMLを",
-    "excerpt": "Markdownで記事を書き、静的サイトとして公開できる軽量ブログキットです。WordPressなどからの移行にも、新しくブログを始める場合にも使えます。記事データはMarkdownとJSONで管理し、ビルドするとHTML、検索インデックス、RSS、サイトマップなどを生成します。 Markdown記事から静的HTMLを",
+    "description": "使い方や設定方法、設定項目を網羅したOJappBlogKitの説明書",
+    "excerpt": "使い方や設定方法、設定項目を網羅したOJappBlogKitの説明書",
     "url": "https://blogkit.ojapp.app/readme/",
     "published": "2026-10-13",
     "displayDate": "2026年10月13日",
-    "category": ""
+    "category": "README"
   },
   {
     "title": "Use this templateから始める設定と使い方",
