@@ -319,13 +319,15 @@ for (const file of files) {
   const contentTokens = firstHeading ? tokens.slice(tokens.indexOf(firstHeading) + 1) : [...tokens];
   const firstParagraphIndex = contentTokens.findIndex((token) => token.type === 'paragraph');
   const firstParagraph = firstParagraphIndex >= 0 ? contentTokens[firstParagraphIndex] : null;
-  const explicitDescription = meta.meta_description || meta.excerpt || '';
-  const description = explicitDescription || raw.replace(/^#+ .*$/gm, '').replace(/[`*_>#\[\]()-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160) || title;
-  const visibleDescription = explicitDescription || (firstParagraph ? firstParagraph.text.slice(0, 160) : '');
-  if (!explicitDescription && firstParagraph) contentTokens.splice(firstParagraphIndex, 1);
+  const explicitExcerpt = meta.excerpt || '';
+  const excerpt = explicitExcerpt || (firstParagraph ? firstParagraph.text.slice(0, 160) : '');
+  const explicitMetaDescription = frontMatter.meta_description || meta.meta_description || '';
+  const description = explicitMetaDescription || explicitExcerpt || (firstParagraph ? firstParagraph.text.slice(0, 160) : '') || raw.replace(/^#+ .*$/gm, '').replace(/[`*_>#\[\]()-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160) || title;
+  const visibleDescription = excerpt;
+  if (!explicitExcerpt && firstParagraph) contentTokens.splice(firstParagraphIndex, 1);
   const defaultPermalink = meta.language && localeKey(meta.language) === 'en' ? `en/${key}` : key;
   const permalink = (meta.permalink || defaultPermalink).replace(/^\/+|\/+$/g, '');
-  articles.push({ key, title, description, visibleDescription, contentTokens, excerpt: meta.excerpt || description, summary: meta.summary || '', permalink, published: frontMatter.published || meta.published || '', updated: frontMatter.updated || meta.updated || '', category: frontMatter.category || meta.category || '', nextArticleKey: meta.next_article || '', translationKey: meta.translation || '', metaLanguage: frontMatter.language || meta.language || '', pwaIcon: meta.pwa_icon || '', thumbnail: meta.thumbnail || '', thumbnailAlt: meta.thumbnail_alt || title, showThumbnail: meta.show_thumbnail !== false, tokens, firstHeading });
+  articles.push({ key, title, description, visibleDescription, contentTokens, excerpt, summary: meta.summary || '', permalink, published: frontMatter.published || meta.published || '', updated: frontMatter.updated || meta.updated || '', category: frontMatter.category || meta.category || '', nextArticleKey: meta.next_article || '', translationKey: meta.translation || '', metaLanguage: frontMatter.language || meta.language || '', pwaIcon: meta.pwa_icon || '', thumbnail: meta.thumbnail || '', thumbnailAlt: meta.thumbnail_alt || title, showThumbnail: meta.show_thumbnail !== false, tokens, firstHeading });
 }
 articles.sort((a, b) => (b.published || '').localeCompare(a.published || '') || a.title.localeCompare(b.title));
 
@@ -405,7 +407,7 @@ for (const article of articles) {
   articleRenderer.code = ({ text, lang }) => codeBlockHtml.get(JSON.stringify([article.language, text, lang || ''])) || `<pre><code>${codeEscape(text)}</code></pre>\n`;
   articleRenderer.heading = ({ tokens, depth }) => {
     const rendered = articleRenderer.parser.parseInline(tokens);
-    const plain = rendered.replace(/<[^>]*>/g, '');
+    const plain = decodeHtmlCode(rendered.replace(/<[^>]*>/g, ''));
     const base = slug(plain);
     const count = usedIds.get(base) || 0;
     usedIds.set(base, count + 1);
