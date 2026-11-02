@@ -1,10 +1,4 @@
 {
-  "about": {
-    "title": "このブログについて",
-    "description": "ブログや運営者について紹介する固定ページです。",
-    "permalink": "about",
-    "footer_label": "このブログについて"
-  },
   "blogkit": {
     "title": "OJapp Blog Kit公式",
     "description": "ブログを書く場所を、自分のものにする。MarkdownとJSONで作る、自分のドメインのブログ。",
