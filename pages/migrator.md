@@ -21,3 +21,5 @@
 </div>
 <script src="/js/blogkit-migrator.js" defer></script>
 <script src="/js/blogkit-migrator-ui.js" defer></script>
+<meta name="ojapp:icon" content="https://ojapp.app/icon/icon.webp">
+<script defer src="https://ojapp.app/js/ojapp_1p1a.js"></script>
