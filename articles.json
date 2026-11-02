@@ -9,24 +9,6 @@
     "published": "2026-10-14",
     "next_article": "use-this-template"
   },
-  "use-this-template": {
-    "title": "Use this templateから始める設定と使い方",
-    "meta_description": "GitHubテンプレートから自分用リポジトリを作成し、ブログ設定、記事追加、Cloudflare PagesやGitHub Pagesへの公開まで解説します。",
-    "excerpt": "Use this templateでリポジトリを作るところから、ブログ設定・記事追加・公開までを順番に案内します。",
-    "permalink": "getting-started",
-    "category": "使い方",
-    "published": "2026-10-13",
-    "next_article": "without-github"
-  },
-  "without-github": {
-    "title": "GitHubを使わずに使う方法",
-    "meta_description": "OJapp Blog Kitをローカルだけで使う方法と、ビルドしたdistをCloudflare Pagesへ手動アップロードして公開する手順を紹介します。",
-    "excerpt": "GitHubなしでローカル執筆・プレビューする方法と、ビルドしたdistをCloudflare Pagesへアップロードする方法を解説します。",
-    "permalink": "without-github",
-    "category": "使い方",
-    "published": "2026-10-12",
-    "next_article": "code-blocks"
-  },
   "code-blocks": {
     "title": "コードブロックを、読む人にも書く人にもわかりやすく",
     "meta_description": "言語表示、シンタックスハイライト、コピー、字下げガイド、Diff表示など、OJapp Blog Kitのコードブロックの使い方を紹介します。",
