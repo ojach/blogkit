@@ -25,5 +25,11 @@
   "description": "WordPressのXMLをブラウザ内でBlog Kit形式へ変換します。",
   "permalink": "migrator",
   "show_in_footer": true
+},
+"json-maker": {
+  "title": "JSON Maker | Blog Kit用記事データ作成ツール",
+  "description": "Markdownで書かれた記事をBlog Kitで使用できるJSON形式に変換します。",
+  "permalink": "json-maker",
+  "show_in_footer": true
 }
 }
