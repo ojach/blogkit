@@ -14,7 +14,7 @@ const dictionaries = {
     linkCopied: 'リンクをコピーしました', copyFailed: 'コピーできませんでした',
     shared: '共有しました', shareCancelled: '共有をキャンセルしました',
     urlCopied: 'URLをコピーしました', shareFailed: 'コピーできませんでした。記事URLをアドレスバーからコピーしてください。',
-    languageName: 'English',
+    languageName: 'EN',
   },
   en: {
     articles: 'Articles', rss: 'RSS', search: 'Search articles', searchPlaceholder: 'Search by title or description',
@@ -31,7 +31,7 @@ const dictionaries = {
     linkCopied: 'Article link copied', copyFailed: 'Could not copy',
     shared: 'Shared', shareCancelled: 'Sharing cancelled',
     urlCopied: 'URL copied', shareFailed: 'Could not copy. Please copy the article URL from the address bar.',
-    languageName: '日本語',
+    languageName: 'JA',
   },
 };
 
