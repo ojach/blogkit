@@ -35,6 +35,11 @@
 
   <section class="bk-section bk-migrator" id="migrator"><div class="bk-migrator-content"><span class="bk-eyebrow">WORDPRESS MIGRATOR</span><h2>記事を、次の場所へ。</h2><p>WordPressのエクスポートXMLから、Blog Kitで使える記事ファイルと設定JSONを生成。Polylangの翻訳対応表にも対応しています。</p><div class="bk-privacy"><strong>🔒 データを手元で扱うために</strong><p>ブラウザ版は、ファイルを外部サーバーに送らず端末内で変換する設計で準備中です。公開時に通信・保存の有無を検証して明記します。不安な方には、ローカルで実行できるMigratorも用意します。</p></div><p class="bk-note">※ テーマ独自の装飾・プラグイン機能・画像・内部リンクなどは、移行後に確認が必要です。</p><span class="bk-coming">BROWSER VERSION — COMING SOON</span></div><div class="bk-migrate-visual"><div class="bk-file"><span>W</span> wordpress.xml</div><div class="bk-convert">↓ <small>Blog Kit Migrator</small> ↓</div><div class="bk-file bk-file-output"><span>MD</span> content/*.md</div><div class="bk-file bk-file-output"><span>{ }</span> articles.json</div><div class="bk-file bk-file-output"><span>{ }</span> pages.json</div></div></section>
 
-  <section class="bk-section bk-download" id="download"><div class="bk-section-head"><span class="bk-eyebrow">DOWNLOAD &amp; DEPLOY</span><h2>自分のブログを、始めよう。</h2><p>GitHubテンプレートから始めるか、配布ZIPを使ってローカルでセットアップできます。</p></div><div class="bk-download-grid"><a class="bk-download-card" href="https://github.com/ojach/blogkit-template" target="_blank" rel="noopener noreferrer"><span>↗</span><h3>GitHub Template</h3><p>GitHub上で新しいブログを作成する</p><strong>Use this template →</strong></a><div class="bk-download-card"><span>↓</span><h3>Download ZIP</h3><p>配布ZIPからローカルでセットアップする</p><strong>ZIP配布リンクは公開時に設定</strong></div></div><p class="bk-bottom-note">静的HTMLを生成するため、公開先を自分で選べます。独自ドメインでの運営も可能です。</p></section>
+  <section class="bk-section bk-download" id="download"><div class="bk-section-head"><span class="bk-eyebrow">DOWNLOAD &amp; DEPLOY</span><h2>自分のブログを、始めよう。</h2><p>GitHubテンプレートから始めるか、配布ZIPを使ってローカルでセットアップできます。</p></div><div class="bk-download-grid"><a class="bk-download-card" href="https://github.com/ojach/blogkit-template" target="_blank" rel="noopener noreferrer"><span>↗</span><h3>GitHub Template</h3><p>GitHub上で新しいブログを作成する</p><strong>Use this template →</strong></a><a href="https://blogkit.ojapp.app/download/" class="bk-download-card">
+  <span>↓</span>
+  <h3>Download ZIP</h3>
+  <p>配布ZIPからローカルでセットアップする</p>
+  <strong>ダウンロードはこちら →</strong>
+</a></div><p class="bk-bottom-note">静的HTMLを生成するため、公開先を自分で選べます。独自ドメインでの運営も可能です。</p></section>
   <footer class="bk-lp-footer"><strong>OJapp Blog Kit</strong><span>Write freely. Own what you build.</span><a href="#top">Back to top ↑</a></footer>
 </div>
