@@ -17,6 +17,6 @@
 </div>
 <div class="ojjson-card ojjson-sticky"><span class="ojjson-step">02</span><h2 class="ojjson-panel-title">Generated output</h2><p class="ojjson-sub">Updates automatically as you enter information.</p><div class="ojjson-status ojjson-neutral" id="ojjson-siteBadge">site.json not loaded</div><div></div><div class="ojjson-urlbox"><div class="ojjson-label">Published URL preview</div><div class="ojjson-url" id="ojjson-urlPreview">https://example.com/welcome/</div><div class="ojjson-hint" id="ojjson-urlNote">Load the url from site.json to preview your actual domain.</div></div><div class="ojjson-field"><label for="ojjson-output">JSON block</label><pre aria-live="polite" class="ojjson-code" id="ojjson-output"></pre></div><div class="ojjson-result-actions"><button class="ojjson-btn ojjson-primary" id="ojjson-copy" type="button">Copy JSON entry</button><button class="ojjson-btn" id="ojjson-reset" type="button">Reset fields</button></div><div class="ojjson-success" id="ojjson-message" role="status"></div><div class="ojjson-notice ojjson-hidden" id="ojjson-warning"></div><p class="ojjson-minor">The output is one entry to paste inside the existing <strong id="ojjson-targetFile">articles.json</strong> object in <code>{ }</code>  . Separate entries with commas.</p></div>
 </div></div>
-<script src="/js/blogkit-json-make.js" defer></script>
+<script src="/js/blogkit-json-make-en.js" defer></script>
 <meta name="ojapp:icon" content="https://ojapp.app/icon/icon.webp">
 <script defer src="https://ojapp.app/js/ojapp_1p1a.js"></script>

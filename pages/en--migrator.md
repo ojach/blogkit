@@ -19,7 +19,7 @@
   <div id="ojm-result" class="ojm-result" hidden><h3>Conversion results</h3><div id="ojm-stats" class="ojm-stats"></div><p id="ojm-warnings"></p></div>
   <section class="ojm-info"><h3>After conversion</h3><ol><li>Extract the ZIP and place <code>content/</code>、<code>pages/</code>、<code>articles.json</code>、<code>pages.json</code> in your Blog Kit project.</li><li>If you converted image URLs, place the actual image files in <code>public/images/</code> separately.</li><li><code>migration-report.json</code> Review migration warnings in the report.</li><li><code>npm run build</code> Build the site and check articles, images, and internal links.</li></ol><p>WordPress-specific shortcodes and theme styling may need manual adjustments. You can use VS Code search and replace to fix image URLs and internal links in bulk.</p><p class="ojm-note">Files are processed only in your browser and are not sent to a server by this tool. Large XML files may take some time to process.</p></section>
 </div>
-<script src="/js/blogkit-migrator.js" defer></script>
-<script src="/js/blogkit-migrator-ui.js" defer></script>
+<script src="/js/blogkit-migrator-en.js" defer></script>
+<script src="/js/blogkit-migrator-ui-en.js" defer></script>
 <meta name="ojapp:icon" content="https://ojapp.app/icon/icon.webp">
 <script defer src="https://ojapp.app/js/ojapp_1p1a.js"></script>

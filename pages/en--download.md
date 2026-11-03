@@ -5,7 +5,7 @@
       <h1>Your own blog,<br><em>starts here.</em></h1>
       <p class="bkdl-lead">Download Blog Kit and write articles in Markdown.<br>Publish the generated files and your own blog is ready.</p>
       <div class="bkdl-actions">
-        <a class="bkdl-btn bkdl-btn-primary"" href="https://ojapp.app/files/ojapp-blogkit.zip" aria-disabled="true">Download ZIP</a>
+        <a class="bkdl-btn bkdl-btn-primary" href="https://ojapp.app/files/ojapp-blogkit.zip" aria-disabled="true">Download ZIP</a>
         <a class="bkdl-btn bkdl-btn-outline" href="https://github.com/ojach/blogkit-template" target="_blank" rel="noopener noreferrer">GitHub template ↗</a>
       </div>
       <p class="bkdl-hero-note">Requirements: Node.js / text editor / hosting (such as Cloudflare Pages)</p>
@@ -54,8 +54,24 @@ npm run build</code></pre></div><p>Once complete, the static files ready to publ
     </div>
   </section>
 
-  <section class="bkdl-footer-cta"><div class="bkdl-inner"><p class="bkdl-kicker">YOUR BLOG, YOUR DOMAIN</p><h2>View GitHub template ↗</h2><p>Your writing, on your own domain.</p><div class="bkdl-actions"><a class="bkdl-btn bkdl-btn-primary" href="/migrator/">To migrate from WordPress, you can also use Blog Kit Migrator.</a><a class="bkdl-btn bkdl-btn-outline" href="/blogkit/">View Migrator ↗</a></div></div></section>
+  <section class="bkdl-footer-cta"><div class="bkdl-inner"><p class="bkdl-kicker">YOUR BLOG, YOUR DOMAIN</p><h2>View GitHub template ↗</h2><p>Your writing, on your own domain.</p><div class="bkdl-actions"><a class="bkdl-btn bkdl-btn-primary" href="en/migrator/">To migrate from WordPress, you can also use Blog Kit Migrator.</a><a class="bkdl-btn bkdl-btn-outline" href="en/blogkit/">View Migrator ↗</a></div></div></section>
 </div>
 <script>
-About Blog Kit ↗
+(function () {
+  document.querySelectorAll('.bkdl-copy').forEach(function (button) {
+    button.addEventListener('click', async function () {
+      var target = document.getElementById(button.getAttribute('data-copy-target'));
+      if (!target) return;
+      var value = target.textContent;
+      try {
+        await navigator.clipboard.writeText(value);
+        button.textContent = 'コピーしました ✓';
+        setTimeout(function () { button.textContent = 'コピー'; }, 1800);
+      } catch (error) {
+        button.textContent = 'コピーできませんでした';
+        setTimeout(function () { button.textContent = 'コピー'; }, 1800);
+      }
+    });
+  });
+})();
 </script>
