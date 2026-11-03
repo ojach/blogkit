@@ -6,6 +6,8 @@
     "summary": "記事はMarkdownで書き、GitHubへPushするとビルド・公開できます。記事一覧や検索、サイトマップ、RSS、OGP画像はビルド時に自動生成されます。",
     "permalink": "welcome",
     "category": "はじめに",
+    "show_thumbnail": false,
+     "translation": "en--welcome",
     "published": "2026-10-14",
     "next_article": "readme"
   },
@@ -15,13 +17,45 @@
     "excerpt": "色分けやコピー、字下げガイド、Diff表示。コードを書く人にも読む人にも便利なコードブロックの使い方を紹介します。",
     "permalink": "code-blocks",
     "category": "Blog Kit",
+    "show_thumbnail": false,
+    "translation": "en--code-blocks",
     "published": "2026-10-11",
     "next_article": "welcome"
   },
   "readme": {
+    "title": "OJapp Blog Kitの使い方",
+    "meta_description": "使い方や設定方法、設定項目を網羅したOJappBlogKitの説明書",
     "excerpt": "使い方や設定方法、設定項目を網羅したOJappBlogKitの説明書",
     "category": "README",
+    "translation": "en--readme",
+    "show_thumbnail": false,
     "published": "2026-10-13",
     "next_article": "guide"
+  },
+  "en--code-blocks": {
+    "title": "Code Blocks That Are Easy to Read and Write",
+    "meta_description": "How OJapp Blog Kit makes code blocks easier to read, copy, and work with.",
+    "permalink": "en/code-blocks",
+    "language": "en",
+    "translation": "code-blocks",
+    "show_thumbnail": false
+  },
+  "en--readme": {
+    "title": "OJapp Blog Kit Complete Guide | From Configuration to Writing and Publishing",
+    "meta_description": "A complete guide to configuring OJapp Blog Kit, writing content, and publishing your site.",
+    "permalink": "en/readme",
+    "language": "en",
+    "translation": "readme",
+    "show_thumbnail": false,
+    "next_article": "en--code-blocks"
+  },
+  "en--welcome": {
+    "title": "Welcome to OJapp Blog Kit",
+    "meta_description": "An introduction to OJapp Blog Kit, a lightweight Markdown-based static blog engine.",
+    "permalink": "en/welcome",
+    "language": "en",
+    "translation": "welcome",
+    "show_thumbnail": false,
+    "next_article": "en--readme"
   }
 }

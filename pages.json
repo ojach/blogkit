@@ -31,5 +31,40 @@
   "description": "Markdownで書かれた記事をBlog Kitで使用できるJSON形式に変換します。",
   "permalink": "json-maker",
   "show_in_footer": true
-}
+},
+"en--blogkit": {
+    "title": "OJapp Blog Kit | A Lightweight Markdown Blog Engine",
+    "description": "Create and publish your own blog with OJapp Blog Kit, a lightweight static site generator built for Markdown.",
+    "permalink": "en/blogkit",
+    "language": "en",
+    "show_in_footer": true
+  },
+  "en--download": {
+    "title": "Download OJapp Blog Kit",
+    "description": "Download OJapp Blog Kit and set up your own Markdown-powered blog.",
+    "permalink": "en/download",
+    "language": "en",
+    "show_in_footer": true
+  },
+  "en--guide": {
+    "title": "Getting Started with OJapp Blog Kit",
+    "description": "Learn how to set up, customize, and publish your blog with OJapp Blog Kit.",
+    "permalink": "en/guide",
+    "language": "en",
+    "show_in_footer": true
+  },
+  "en--json-maker": {
+    "title": "JSON Maker | OJapp Blog Kit",
+    "description": "Create article and page JSON settings with an easy-to-use form.",
+    "permalink": "en/json-maker",
+    "language": "en",
+    "show_in_footer": true
+  },
+  "en--migrator": {
+    "title": "WordPress Migrator | OJapp Blog Kit",
+    "description": "Convert WordPress posts and pages into files for OJapp Blog Kit.",
+    "permalink": "en/migrator",
+    "language": "en",
+    "show_in_footer": true
+  }
 }
