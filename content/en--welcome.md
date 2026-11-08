@@ -1,3 +1,7 @@
+---
+published: 2026-10-16
+---
+
 # Welcome to OJapp Blog Kit
 
 OJapp Blog Kit is a lightweight static blog engine for writing articles in Markdown and publishing them on your own domain.

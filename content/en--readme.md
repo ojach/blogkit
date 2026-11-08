@@ -1,3 +1,7 @@
+---
+published: 2026-10-15
+---
+
 # OJapp Blog Kit Complete Guide | From Configuration to Writing and Publishing
 
 OJapp Blog Kit is a static site generator that manages blogs using Markdown and JSON.

@@ -1,3 +1,7 @@
+---
+published: 2026-10-14
+---
+
 # Code Blocks That Are Easy to Read and Write
 
 Code is something we often revisit, modify, and test after writing it.
