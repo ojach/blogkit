@@ -353,8 +353,6 @@ updated: 2026-11-10
 
 `updated` はサイトマップの `lastmod` や記事の構造化データに使用されます。更新していない記事に無理に設定する必要はありません。
 
-フロントマターでは `published`、`updated`、`category`、`meta_description`、`language` も読み取れますが、通常は `articles.json` にまとめ、更新日だけをMarkdownに記載する運用がわかりやすいでしょう。
-
 ## 4. 記事Markdownの書き方
 
 記事は `content/` フォルダに `.md` ファイルとして保存します。
