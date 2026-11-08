@@ -204,6 +204,8 @@ Blog Kitでは、記事内の好きな位置に画像広告を挿入できます
 
 `articles.json` は、記事タイトル、公開URL、説明文、カテゴリなどを管理するファイルです。記事本文はMarkdown、記事の設定はJSONという形で分離しています。
 
+記事markdown内のフロントマターでも設定できますが、特殊な内容は`articles.json`のみの対応になっています。[記事Markdownの書き方へ](#4. 記事Markdownの書き方)
+
 ### 設定例
 
 ```json
@@ -385,6 +387,23 @@ content/
 ```
 
 Markdownの最初のH1は、`articles.json` に `title` がない場合のタイトルとして使われます。最初のH1は記事本文から取り除かれ、ページのタイトルとして表示されます。
+
+### フロントマター
+
+フロントマターを使うことで`articles.json`を使わずに運用することもできます。記事mdの先頭に記載してください。
+設定できるのは下記の5項目です。
+
+```md
+---
+permalink: articles-template
+excerpt: "excerptはタイトル下の内容です。"
+published: 2026-11-01
+updated: 2026-11-10
+category: TEST
+---
+
+# タイトル
+```
 
 ### 画像の挿入
 
