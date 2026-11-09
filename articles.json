@@ -57,5 +57,13 @@
     "translation": "welcome",
     "show_thumbnail": false,
     "next_article": "en--readme"
+  },
+  "blogkit-v2-test": {
+    "summary": "Blog Kit v2のテスト記事です。Frontmatterと日英自動連携を確認します。",
+    "show_thumbnail": false
+  },
+  "en--blogkit-v2-test": {
+    "summary": "A sample article testing Blog Kit v2 Frontmatter and automatic Japanese-English linking.",
+    "show_thumbnail": false
   }
 }
