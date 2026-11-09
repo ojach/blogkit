@@ -9,6 +9,6 @@
   "language": "ja-JP",
   "features": {
     "article_summary": true,
-    "article_pwa_icons": true
+    "article_pwa_icons": false
   }
 }
