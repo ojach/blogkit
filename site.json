@@ -7,6 +7,7 @@
   "icon": "icon.webp",
   "author_image": "",
   "language": "ja-JP",
+  "shiki_theme": "github-dark-default",
   "features": {
     "article_summary": true,
     "article_pwa_icons": false
