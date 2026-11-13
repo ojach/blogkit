@@ -186,6 +186,11 @@ function shell({ title, description, canonical, site, basePath, body, extra = ''
 .article-card-thumbnail{display:block;width:112px;height:84px;object-fit:cover;border-radius:8px;flex:0 0 112px}
 .recommendation-list .article-card-thumbnail{width:88px;height:66px;flex-basis:88px}
 @media(max-width:480px){.article-card.has-thumbnail,.recommendation-list>li.has-thumbnail{gap:12px}.article-card-thumbnail{width:88px;height:66px;flex-basis:88px}.recommendation-list .article-card-thumbnail{width:72px;height:54px;flex-basis:72px}}
+
+/* Opt-in side-by-side code comparisons (including mobile). */
+.prose .code-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:24px 0}
+.prose .code-grid>.code-block{min-width:0;margin:0}
+.prose .code-grid .shiki{max-width:100%;overflow-x:auto}
 </style>`;
   const faviconUrl = site.icon ? imageUrl(basePath, site.icon) : '';
   const faviconTag = faviconUrl ? `<link rel="icon" href="${esc(faviconUrl)}">` : '';
@@ -243,7 +248,7 @@ marked.use({
     level: 'block',
     start(source) { return /^:::code-grid[ \t]*$/m.exec(source)?.index; },
     tokenizer(source) {
-      const match = /^:::code-grid[ \t]*\r?\n([\s\S]*?)^:::[ \t]*(?:\r?\n|$)/m.exec(source);
+      const match = /^:::code-grid[ \t]*\r?\n([\s\S]*?)\r?\n:::[ \t]*(?:\r?\n|$)/.exec(source);
       if (!match) return;
       const tokens = marked.lexer(match[1]).filter((token) => token.type !== 'space');
       if (!tokens.length || tokens.some((token) => token.type !== 'code')) return;
