@@ -1,5 +1,6 @@
 ---
 published: 2026-10-14
+updated: 2026-11-13
 ---
 
 # Code Blocks That Are Easy to Read and Write
@@ -126,9 +127,120 @@ Readability also depends on what you choose to show, not just how the code looks
 
 Blog Kit intentionally does not show line numbers. The goal is to help readers focus on the code itself and its indentation, rather than tracking line numbers.
 
+
+## Compare Shiki Themes Side by Side
+
+Blog Kit uses Shiki for syntax highlighting. The examples below show **the same JavaScript code rendered in different themes**. Each header displays the theme name. On mobile, the comparison stays in two columns; scroll inside a code block if needed.
+
+:::code-grid
+```js theme=github-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=dracula
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=nord
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=material-theme
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=one-dark-pro
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=vitesse-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=github-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=catppuccin-mocha
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+## Change the Default Shiki Theme
+
+Add `shiki_theme` to `site.json` to change the default theme for code blocks across your site.
+
+```json
+{
+  "shiki_theme": "github-dark"
+}
+```
+
+The setting takes effect on the next build. If omitted, Blog Kit uses its built-in default theme. To override just one block, specify `theme=` after the language name.
+
+````md
+```js theme=dracula
+console.log("Hello, Blog Kit!");
+```
+````
+
+## Compare Code in Two Columns
+
+Use `:::code-grid` to place code blocks side by side. You can also set custom header labels with `title=`, such as `Original` and `Diff`.
+
+`````md
+:::code-grid
+```js title=Original
+const theme = "github-dark";
+```
+
+```diff title=Diff
+- const theme = "plain";
++ const theme = "github-dark";
+```
+:::
+`````
+
+:::code-grid
+```js title=Original
+const theme = "github-dark";
+```
+
+```diff title=Diff
+- const theme = "plain";
++ const theme = "github-dark";
+```
+:::
+
 ## Keep Using Standard Markdown
 
-Code blocks use ordinary Markdown code fences. You don't need to learn Blog Kit-specific syntax or embed HTML in your articles.
+Code blocks use ordinary Markdown code fences. For ordinary code blocks, no Blog Kit-specific syntax or HTML is required. The optional `:::code-grid` notation is only for side-by-side comparisons.
 
 ````markdown
 ```js

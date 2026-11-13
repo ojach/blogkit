@@ -1,3 +1,7 @@
+---
+updated: 2026-11-13
+---
+
 # コードブロックを、読む人にも書く人にもわかりやすく
 
 コードは、書いたあとに何度も読み返したり、少し変えて試したりするものです。
@@ -122,9 +126,120 @@ npm run build
 
 行番号はあえて表示しません。行番号を追うより、コードそのものと字下げの階層に集中できる表示を目指しています。
 
+
+## Shikiテーマを横並びで比較する
+
+Blog Kitのコードの色分けにはShikiを使用しています。下では**同じJavaScriptコードを異なるテーマで表示**しています。ヘッダーにはテーマ名が表示され、スマホでも2カラムのまま比較できます。長いコードはブロック内で横スクロールできます。
+
+:::code-grid
+```js theme=github-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=dracula
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=nord
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=material-theme
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=one-dark-pro
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=vitesse-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=github-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=catppuccin-mocha
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+## Shikiの標準テーマを変更する
+
+`site.json` に `shiki_theme` を追加すると、サイト全体のコードブロックの標準テーマを変更できます。
+
+```json
+{
+  "shiki_theme": "github-dark"
+}
+```
+
+変更は次のビルドで反映されます。未指定ならBlog Kitの既定テーマを使用します。1つのコードブロックだけ変えたい場合は、言語名の後ろに `theme=` を指定します。
+
+````md
+```js theme=dracula
+console.log("Hello, Blog Kit!");
+```
+````
+
+## コードを2カラムで比較する
+
+`:::code-grid` でコードブロックを横並びにできます。`title=` を使えば、ヘッダーを「正本」「Diff」などに変更できます。
+
+`````md
+:::code-grid
+```js title=正本
+const theme = "github-dark";
+```
+
+```diff title=Diff
+- const theme = "plain";
++ const theme = "github-dark";
+```
+:::
+`````
+
+:::code-grid
+```js title=正本
+const theme = "github-dark";
+```
+
+```diff title=Diff
+- const theme = "plain";
++ const theme = "github-dark";
+```
+:::
+
 ## 普通のMarkdownのまま使える
 
-コードブロックは標準的なMarkdownのコードフェンスで書けます。Blog Kit独自の記法を覚えたり、記事本文にHTMLを埋め込んだりする必要はありません。
+コードブロックは標準的なMarkdownのコードフェンスで書けます。通常のコードブロックにはBlog Kit独自の記法やHTMLは必要ありません。2カラムで比較するときだけ `:::code-grid` を使用します。
 
 ````markdown
 ```js
