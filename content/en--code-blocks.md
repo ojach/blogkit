@@ -127,6 +127,19 @@ Readability also depends on what you choose to show, not just how the code looks
 
 Blog Kit intentionally does not show line numbers. The goal is to help readers focus on the code itself and its indentation, rather than tracking line numbers.
 
+## Keep Using Standard Markdown
+
+Code blocks use ordinary Markdown code fences. You don't need to learn Blog Kit-specific syntax or embed HTML in your articles.
+
+````markdown
+```js
+const blog = "Publish on your own domain";
+```
+````
+
+Your source articles remain plain Markdown files. Blog Kit handles their presentation so you can focus on the content.
+
+Code examples should be easy to read and easy to try. That's another part of building a blog where writing comes first.
 
 ## Compare Shiki Themes Side by Side
 
@@ -237,17 +250,3 @@ const theme = "github-dark";
 + const theme = "github-dark";
 ```
 :::
-
-## Keep Using Standard Markdown
-
-Code blocks use ordinary Markdown code fences. For ordinary code blocks, no Blog Kit-specific syntax or HTML is required. The optional `:::code-grid` notation is only for side-by-side comparisons.
-
-````markdown
-```js
-const blog = "Publish on your own domain";
-```
-````
-
-Your source articles remain plain Markdown files. Blog Kit handles their presentation so you can focus on the content.
-
-Code examples should be easy to read and easy to try. That's another part of building a blog where writing comes first.
