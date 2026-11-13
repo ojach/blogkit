@@ -140,9 +140,53 @@ const blog = "自分の場所に公開する";
 
 コードを載せる記事も、読みやすく、試しやすく。これからも「書くこと」に集中できるブログを目指していきます。
 
-## Shikiテーマを横並びで比較する
+## Shikiの標準テーマを変更する
 
-Blog Kitのコードの色分けにはShikiを使用しています。下では**同じJavaScriptコードを異なるテーマで表示**しています。ヘッダーにはテーマ名が表示され、スマホでも2カラムのまま比較できます。長いコードはブロック内で横スクロールできます。
+`site.json` に `shiki_theme` を追加すると、サイト全体のコードブロックの標準テーマを変更できます。
+
+```json
+{
+  "shiki_theme": "github-dark"
+}
+```
+
+変更は次のビルドで反映されます。未指定ならBlog Kitの既定テーマを使用します。1つのコードブロックだけ変えたい場合は、言語名の後ろに `theme=` を指定します。
+
+````md
+```js theme=dracula
+console.log("Hello, Blog Kit!");
+```
+````
+
+## コードを2カラムで比較する
+
+`:::code-grid` でコードブロックを横並びにできます。`title=` を使えば、ヘッダーを「正本」「Diff」などに変更できます。
+
+`````md
+:::code-grid
+```js title=正本
+const theme = "github-dark";
+```
+
+```diff title=Diff
+- const theme = "plain";
++ const theme = "github-dark";
+```
+:::
+`````
+
+:::code-grid
+```js title=正本
+const theme = "github-dark";
+```
+
+```diff title=Diff
+- const theme = "plain";
++ const theme = "github-dark";
+```
+:::
+
+## Shikiテーマ一覧
 
 :::code-grid
 ```js theme=github-dark
@@ -202,50 +246,4 @@ const enabled = true;
 console.log(blog, enabled);
 ```
 
-:::
-
-## Shikiの標準テーマを変更する
-
-`site.json` に `shiki_theme` を追加すると、サイト全体のコードブロックの標準テーマを変更できます。
-
-```json
-{
-  "shiki_theme": "github-dark"
-}
-```
-
-変更は次のビルドで反映されます。未指定ならBlog Kitの既定テーマを使用します。1つのコードブロックだけ変えたい場合は、言語名の後ろに `theme=` を指定します。
-
-````md
-```js theme=dracula
-console.log("Hello, Blog Kit!");
-```
-````
-
-## コードを2カラムで比較する
-
-`:::code-grid` でコードブロックを横並びにできます。`title=` を使えば、ヘッダーを「正本」「Diff」などに変更できます。
-
-`````md
-:::code-grid
-```js title=正本
-const theme = "github-dark";
-```
-
-```diff title=Diff
-- const theme = "plain";
-+ const theme = "github-dark";
-```
-:::
-`````
-
-:::code-grid
-```js title=正本
-const theme = "github-dark";
-```
-
-```diff title=Diff
-- const theme = "plain";
-+ const theme = "github-dark";
-```
 :::
