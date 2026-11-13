@@ -131,3 +131,20 @@
     min-height: 42px;
   }
 }
+
+/* コードブロックの2カラム表示 */
+.prose .code-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.prose .code-grid .code-block {
+  min-width: 0;
+  margin: 0;
+}
+
+.prose .code-grid .shiki {
+  overflow-x: auto;
+}
