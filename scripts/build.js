@@ -250,8 +250,19 @@ marked.use({
     tokenizer(source) {
       const match = /^:::code-grid[ \t]*\r?\n([\s\S]*?)\r?\n:::[ \t]*(?:\r?\n|$)/.exec(source);
       if (!match) return;
-      const tokens = marked.lexer(match[1]).filter((token) => token.type !== 'space');
-      if (!tokens.length || tokens.some((token) => token.type !== 'code')) return;
+      // Do not call marked.lexer() recursively from a tokenizer: it can
+      // interfere with the outer lexer and blank out subsequent headings.
+      const inner = match[1].trim();
+      const tokens = [];
+      const fence = /(?:^|\n)[ \t]*(`{3,}|~{3,})([^\n]*)\n([\s\S]*?)\n[ \t]*\1[ \t]*(?=\n|$)/g;
+      let cursor = 0;
+      for (const codeMatch of inner.matchAll(fence)) {
+        const between = inner.slice(cursor, codeMatch.index);
+        if (between.trim()) return;
+        tokens.push({ type: 'code', lang: codeMatch[2].trim(), text: codeMatch[3] });
+        cursor = codeMatch.index + codeMatch[0].length;
+      }
+      if (tokens.length < 2 || inner.slice(cursor).trim()) return;
       return { type: 'ojappCodeGrid', raw: match[0], tokens };
     },
     renderer(token) {

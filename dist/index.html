@@ -1,6 +1,18 @@
-<!doctype html><html lang="ja-JP" style="--brand:#187a68"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>OJapp Blog Kit</title><meta name="description" content="Markdownで書いて、自分のドメインに記事を積み上げるブログ。"><link rel="canonical" href="https://blogkit.ojapp.app/"><meta property="og:type" content="website"><meta property="og:site_name" content="OJapp Blog Kit"><meta property="og:title" content="OJapp Blog Kit"><meta property="og:description" content="Markdownで書いて、自分のドメインに記事を積み上げるブログ。"><meta property="og:url" content="https://blogkit.ojapp.app/"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="OJapp Blog Kit"><meta name="twitter:description" content="Markdownで書いて、自分のドメインに記事を積み上げるブログ。"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/highlight.css"><link rel="alternate" type="application/rss+xml" title="OJapp Blog Kit RSS" href="/rss.xml"><!-- Add optional site-wide code for the <head> here. Leave empty if unused. -->
-<script defer src="https://ojapp.app/js/oj_c244b7fd.js"></script>
-</head><body><header class="site-header"><div class="header-inner"><a class="brand" href="/">OJapp Blog Kit</a><nav class="nav"><a href="/">記事一覧</a><a href="/rss.xml">RSS</a></nav></div></header><main class="page">
+<!doctype html><html lang="ja-JP" style="--brand:#187a68"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>OJapp Blog Kit</title><meta name="description" content="Markdownで書いて、自分のドメインに記事を積み上げるブログ。"><link rel="canonical" href="https://blogkit.ojapp.app/"><link rel="icon" href="/images/icon.webp"><meta name="ojapp:icon" content="/images/icon.webp"><meta property="og:type" content="website"><meta property="og:site_name" content="OJapp Blog Kit"><meta property="og:title" content="OJapp Blog Kit"><meta property="og:description" content="Markdownで書いて、自分のドメインに記事を積み上げるブログ。"><meta property="og:url" content="https://blogkit.ojapp.app/"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="OJapp Blog Kit"><meta name="twitter:description" content="Markdownで書いて、自分のドメインに記事を積み上げるブログ。"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/highlight.css"><link rel="alternate" type="application/rss+xml" title="OJapp Blog Kit RSS" href="/rss.xml"><style>
+.article-card.has-thumbnail,.recommendation-list>li.has-thumbnail{display:flex;align-items:center;gap:16px}
+.article-card-copy{min-width:0;flex:1}
+.article-card-thumbnail{display:block;width:112px;height:84px;object-fit:cover;border-radius:8px;flex:0 0 112px}
+.recommendation-list .article-card-thumbnail{width:88px;height:66px;flex-basis:88px}
+@media(max-width:480px){.article-card.has-thumbnail,.recommendation-list>li.has-thumbnail{gap:12px}.article-card-thumbnail{width:88px;height:66px;flex-basis:88px}.recommendation-list .article-card-thumbnail{width:72px;height:54px;flex-basis:72px}}
+
+/* Opt-in side-by-side code comparisons (including mobile). */
+.prose .code-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:24px 0}
+.prose .code-grid>.code-block{min-width:0;margin:0}
+.prose .code-grid .shiki{max-width:100%;overflow-x:auto}
+</style><!-- Add optional site-wide code for the <head> here. Leave empty if unused. -->
+<meta name="ojapp:icon" content="https://ojapp.app/icon/icon.webp">
+<script defer src="https://ojapp.app/js/ojapp_1p1a.js"></script>
+</head><body><header class="site-header"><div class="header-inner"><a class="brand" href="/">OJapp Blog Kit</a><nav class="nav"><a href="/">記事一覧</a><a href="/rss.xml">RSS</a><a href="/en/" lang="en">EN</a></nav></div></header><main class="page">
   <div class="home-grid">
     <section>
       <div class="intro">
@@ -20,7 +32,7 @@
         data-search
       >
       <ul class="article-list" data-results>
-        <li class="article-card" data-card><div class="article-meta"><time datetime="2026-10-14">2026年10月14日</time> · はじめに</div><h2><a href="/welcome/">はじめまして。OJapp Blog Kitへようこそ</a></h2><p>Markdownで記事を書き、自分の場所に公開する。Blog Kitでできることと、記事公開の流れを紹介します。</p></li><li class="article-card" data-card><div class="article-meta"><time datetime="2026-10-13">2026年10月13日</time> · README</div><h2><a href="/readme/">OJapp Blog Kit Readme</a></h2><p>使い方や設定方法、設定項目を網羅したOJappBlogKitの説明書</p></li><li class="article-card" data-card><div class="article-meta"><time datetime="2026-10-13">2026年10月13日</time> · 使い方</div><h2><a href="/getting-started/">Use this templateから始める設定と使い方</a></h2><p>Use this templateでリポジトリを作るところから、ブログ設定・記事追加・公開までを順番に案内します。</p></li><li class="article-card" data-card><div class="article-meta"><time datetime="2026-10-12">2026年10月12日</time> · 使い方</div><h2><a href="/without-github/">GitHubを使わずに使う方法</a></h2><p>GitHubなしでローカル執筆・プレビューする方法と、ビルドしたdistをCloudflare Pagesへアップロードする方法を解説します。</p></li><li class="article-card" data-card><div class="article-meta"><time datetime="2026-10-11">2026年10月11日</time> · Blog Kit</div><h2><a href="/code-blocks/">コードブロックを、読む人にも書く人にもわかりやすく</a></h2><p>色分けやコピー、字下げガイド、Diff表示。コードを書く人にも読む人にも便利なコードブロックの使い方を紹介します。</p></li>
+        <li class="article-card" data-card><div class="article-card-copy"><div class="article-meta"><time datetime="2026-10-14">2026年10月14日</time> · はじめに</div><h2><a href="/welcome/">はじめまして。OJapp Blog Kitへようこそ</a></h2><p>Markdownで記事を書き、自分の場所に公開する。Blog Kitでできることと、記事公開の流れを紹介します。</p></div></li><li class="article-card" data-card><div class="article-card-copy"><div class="article-meta"><time datetime="2026-10-13">2026年10月13日</time> · README</div><h2><a href="/readme/">OJapp Blog Kitの使い方</a></h2><p>使い方や設定方法、設定項目を網羅したOJappBlogKitの説明書</p></div></li><li class="article-card" data-card><div class="article-card-copy"><div class="article-meta"><time datetime="2026-10-11">2026年10月11日</time> · Blog Kit</div><h2><a href="/code-blocks/">コードブロックを、読む人にも書く人にもわかりやすく</a></h2><p>色分けやコピー、字下げガイド、Diff表示。コードを書く人にも読む人にも便利なコードブロックの使い方を紹介します。</p></div></li>
       </ul>
       
     </section>
@@ -32,5 +44,5 @@
   </div>
 </main>
 <script src="/js/search.js" defer></script>
-<footer class="footer"><div class="footer-inner"><a class="footer-brand" href="/">OJapp Blog Kit</a><nav class="footer-pages" aria-label=""><a href="/about/">このブログについて</a><a href="/blogkit/">OJapp Blog Kit公式</a><a href="/download/">Blog Kit ダウンロード・導入ガイド</a><a href="/guide/">Blog Kit ガイド｜自分に合ったブログの運営方法</a><a href="/migrator/">WordPress Migrator | OJapp Blog Kit</a></nav><p class="footer-tagline">Built for the OJapp Blog Kit.</p></div></footer><!-- Add optional site-wide code before </body> here. Leave empty if unused. -->
+<footer class="footer"><div class="footer-inner"><a class="footer-brand" href="/">OJapp Blog Kit</a><nav class="footer-pages" aria-label=""><a href="/blogkit/">OJapp Blog Kit公式</a><a href="/download/">Blog Kit ダウンロード・導入ガイド</a><a href="/guide/">Blog Kit ガイド｜自分に合ったブログの運営方法</a><a href="/json-maker/">JSON Maker | Blog Kit用記事データ作成ツール</a><a href="/migrator/">WordPress Migrator | WPからの移行ツール</a></nav><p class="footer-tagline">Built for the OJapp Blog Kit.</p></div></footer><!-- Add optional site-wide code before </body> here. Leave empty if unused. -->
 </body></html>
