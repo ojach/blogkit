@@ -23,28 +23,6 @@ npm run build
 
 生成物は `dist/` です。`dist/index.html` を開くか、ローカルの静的サーバーで確認できます。
 
-## トップページの見た目を変える
-
-トップページのHTMLは `templates/index.html` にあります。レイアウトや見出しの構造など、HTMLの見た目を変えるときはこのファイルを編集してから `npm run build` してください。`dist/` のHTMLを直接編集しても、次のビルドで上書きされます。
-
-`{{introTitle}}` や `{{articleCards}}` のような `{{...}}` は、言語ごとの文言や記事一覧をビルド時に入れる場所です。これらの名前はそのまま残してください。トップページの文言自体は `scripts/locales.js` で日本語・英語それぞれ設定します。
-
-## 全ページ共通の追加コード
-
-`templates/custom-head.html` に `<head>` 用、`templates/custom-body-end.html` に `</body>` 直前へ入れるコードを書けます。GA4や1P1Aなど、全ページ共通で使うコードを貼り付けます。使わないファイルは初期状態のままで構いません。1P1Aのスクリプトは同梱していません。
-
-## 記事ごとのPWAアイコン
-
-`articles.json` の記事設定に `pwa_icon` を指定すると、その記事ページに `<meta name="ojapp:icon">` を出力します。1P1Aのスクリプトを共通コード欄に設定しておけば、記事ごとのアイコンとして使えます。画像は `public/images/` に置き、ファイル名だけを書きます。記事側に指定がない場合は、`site.json` の `pwa_icon`、次に共通アイコンの `icon` を使います。
-
-```json
-{
-  "my-article": {
-    "pwa_icon": "my-article-icon.webp"
-  }
-}
-```
-
 ## 記事を追加する
 
 1. `content/my-new-article.md` を作成します。
@@ -73,8 +51,6 @@ Markdownの最初のH1がタイトルになります。メタ情報がない場�
 ### 日本語・英語の記事
 
 サイトの既定言語は `site.json` の `language` で指定します。個別記事には `articles.json` の `language` を `ja` または `en` で指定できます。英語記事では日付、ナビゲーション、目次、要約、作者欄、共有状態などのUIも英語になります。記事本文・タイトル・説明文はそれぞれの記事に書いた内容を使います。
-
-トップページと検索結果も記事の言語ごとに分かれます。既定言語の記事一覧は `/`、英語記事の一覧は `/en/` に生成されます（英語を既定言語にした場合は英語が `/`、日本語が `/ja/`）。ヘッダーの言語リンクからもう一方の一覧へ移動できます。検索対象も各言語の一覧に表示される記事だけです。
 
 日英記事を対応付ける場合は、お互いのファイル名（拡張子なし）を `translation` に指定します。記事上部に相手言語へのリンクが表示されます。古い記事のURLを維持したい場合は、`permalink` にこれまでのパスをそのまま指定してください。
 
@@ -242,6 +218,35 @@ GitHub Pages用のワークフローを `.github/workflows/pages.yml` に同梱�
 ユーザーサイト（`ojach.github.io`）として公開する場合も同じワークフローを使えます。その場合の `site.json` の `url` は `https://ojach.github.io` です。
 
 生成後の `dist/` は任意の静的ホスティングでも配信できます。記事データと表示処理は分離されているため、ホスティング先に応じて記事データを書き換える必要はありません。
+
+## WranglerからCloudflare Pagesへ直接公開する
+
+GitHub Actionsを使わず、ローカルでビルドした `dist/` をWranglerからCloudflare Pagesへアップロードする方法です。Cloudflare Pagesのプロジェクトは最初に一度だけ作成します。Cloudflareの画面で **Workers & Pages → Create application → Pages → Direct Upload** を選び、プロジェクトを作成してください。プロジェクト名は後で使うので控えておきます。
+
+プロジェクトのフォルダでWranglerを一度インストールし、Cloudflareにログインします。
+
+```sh
+npm install --save-dev wrangler
+npx wrangler login
+```
+
+`package.json` の `scripts` に、`deploy` を追加します。`your-pages-project` は先ほど作成したPagesのプロジェクト名に置き換えてください。
+
+```json
+"scripts": {
+  "build": "node scripts/build.js",
+  "deploy": "wrangler pages deploy dist --project-name your-pages-project"
+}
+```
+
+`site.json` の `url` を公開URLに設定したら、記事を更新するたびに次のコマンドを実行します。
+
+```sh
+npm run build
+npm run deploy
+```
+
+独自ドメインを使う場合は、Pagesプロジェクトの **Custom domains** で設定し、`site.json` の `url` も同じ独自ドメインにします。この方法ではGitHubへのPushは不要です。
 
 ## 注意
 
