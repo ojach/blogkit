@@ -470,7 +470,7 @@ for (const language of languages) {
     articleCards: cardsFor(page) || `<li class="empty">${esc(labels.noArticles)}</li>`,
     pagination,
     sideDescription: esc(labels.sideDescription),
-    searchScriptUrl: esc(withBase(basePath, '/js/search.js')),
+    searchScriptUrl: esc(withBase(basePath, '/js/search.js?v=1')),
   });
   const destination = path.join(out, pageRoute.replace(/^\/+|\/+$/g, ''), 'index.html');
   await fs.mkdir(path.dirname(destination), { recursive: true });
