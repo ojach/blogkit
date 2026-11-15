@@ -189,28 +189,88 @@ const theme = "github-dark";
 ## Shikiテーマ一覧
 
 :::code-grid
-```js theme=github-dark
+```js theme=andromeeda
 const blog = "OJapp Blog Kit";
 const enabled = true;
 console.log(blog, enabled);
 ```
 
+```js theme=aurora-x
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=ayu-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=ayu-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=ayu-mirage
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=catppuccin-frappe
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=gcatppuccin-latte
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=catppuccin-macchiato
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=catppuccin-mocha
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=dark-plus
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
 ```js theme=dracula
 const blog = "OJapp Blog Kit";
 const enabled = true;
 console.log(blog, enabled);
 ```
 
-:::
-
-:::code-grid
-```js theme=nord
-const blog = "OJapp Blog Kit";
-const enabled = true;
-console.log(blog, enabled);
-```
-
-```js theme=material-theme
+```js theme=dracula-soft
 const blog = "OJapp Blog Kit";
 const enabled = true;
 console.log(blog, enabled);
@@ -219,13 +279,43 @@ console.log(blog, enabled);
 :::
 
 :::code-grid
-```js theme=one-dark-pro
+```js theme=everforest-dark
 const blog = "OJapp Blog Kit";
 const enabled = true;
 console.log(blog, enabled);
 ```
 
-```js theme=vitesse-dark
+```js theme=everforest-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=github-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=github-dark-default
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=github-dark-dimmed
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=github-dark-high-contrast
 const blog = "OJapp Blog Kit";
 const enabled = true;
 console.log(blog, enabled);
@@ -240,7 +330,352 @@ const enabled = true;
 console.log(blog, enabled);
 ```
 
-```js theme=catppuccin-mocha
+```js theme=github-light-default
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=github-light-high-contrast
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=gruvbox-dark-hard
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=gruvbox-dark-medium
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=gruvbox-dark-soft
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=gruvbox-light-hard
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=gruvbox-light-medium
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=gruvbox-light-soft
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=horizon
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=horizon-bright
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=houston
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=kanagawa-dragon
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=kanagawa-lotus
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=kanagawa-wave
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=laserwave
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=light-plus
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=material-theme
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=material-theme-darker
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=material-theme-lighter
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=material-theme-ocean
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=material-theme-palenight
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=min-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=min-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=monokai
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=night-owl
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=night-owl-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=nord
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=one-dark-pro
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=one-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=plastic
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=poimandres
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=red
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=rose-pine
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=rose-pine-dawn
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=rose-pine-moon
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=slack-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=slack-ochin
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=snazzy-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=solarized-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=solarized-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=synthwave-84
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=tokyo-night
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=vesper
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=vitesse-black
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=vitesse-dark
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+:::
+
+:::code-grid
+```js theme=vitesse-light
+const blog = "OJapp Blog Kit";
+const enabled = true;
+console.log(blog, enabled);
+```
+
+```js theme=material-theme
 const blog = "OJapp Blog Kit";
 const enabled = true;
 console.log(blog, enabled);
