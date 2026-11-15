@@ -234,7 +234,7 @@ console.log(blog, enabled);
 :::
 
 :::code-grid
-```js theme=gcatppuccin-latte
+```js theme=catppuccin-latte
 const blog = "OJapp Blog Kit";
 const enabled = true;
 console.log(blog, enabled);
